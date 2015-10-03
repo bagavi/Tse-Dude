@@ -38,7 +38,6 @@ def PointWiseListDifference( List1, List2):
             Temp.append( 1 )
         else:
             Temp.append( 0 )
-    print( sum( Temp ))
     return( Temp )
 
 def CheckProbabilitiesSumtoOne( Array ):

@@ -343,7 +343,8 @@ ChainWeight = [.4, .25 , .2 , .1 , .05]
 InputTest = MarkovModelSequence( Alphabet, 1000, MarkovTransitionDictionary, ChainWeight)
 #print( InputTest.getSequence() )
 ChannelTest = DiscreteMemoryChannel( InputTest, TransitionDictionary )
-OutputTest = DUDEOutputSequence( ChannelTest, LossFunction, InputTest , ContextLength = 2)
+ContextLength = 2
+OutputTest = DUDEOutputSequence( ChannelTest, LossFunction, InputTest , ContextLength = ContextLength)
 OutputTest.DecodeSequence()
 a = InputTest.getSequence()
 b = OutputTest.ReceivedSequence
@@ -352,5 +353,11 @@ c = OutputTest.Sequence
 #print(b)
 #print(c)
 z = PointWiseListDifference( a, b)
+print( "Flip probability of DMC ", ( 1- p1))
+print( "Dude Loss dictionary", LossFunction)
+print( "DUDE context length" , ContextLength)
+print( "Changes made by channel", sum(z))
 z = PointWiseListDifference( a, c)
+print( "Difference between actual and corrected sequence", sum( z ) )
 z = PointWiseListDifference( b, c)
+print( "Difference between received and corrected sequence",sum( z ) )
