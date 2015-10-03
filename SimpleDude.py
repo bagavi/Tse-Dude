@@ -122,13 +122,19 @@ class MarkovModelSequence( InputSequence ):
                                                           TransitionDictionary.keys() ))
         self.TransitionMatrix = MatrixFromDict( TransitionDictionary )
         
+
         self.ChainWeight = numpy.array( ChainWeight )
+
+        CheckProbabilitiesSumtoOne( self.TransitionMatrix )
+        CheckProbabilitiesSumtoOne( [ self.ChainWeight ] )
+
         self.Sequence = []
         self.GenerateSequence()
-        
+    
     def GenerateSequence(self):
         self.__generateFirstFewRandomBits()
         self.__RunMarkovChainForRandomBits()
+        Del = "del"
         
     def __generateFirstFewRandomBits(self):
         for j in range( len( self.ChainWeight ) ):
@@ -146,7 +152,6 @@ class MarkovModelSequence( InputSequence ):
             
             ProbVector = self.ChainWeight.dot( PMatrix )
             RandomNumber = SampleDistributionFromPdf( ProbVector, range( len(self.Alphabet )))
-            
             self.Sequence.append(self.ReverseAlphabetDictionaryKeyMap[ RandomNumber ])
         
 
@@ -197,9 +202,10 @@ class DiscreteMemoryChannel( Channel ):
             #print ( symbolT, index, "\n")
             TransitionProbabilities = tuple( self.TransitionDictionary[symbolT].values() )
             #print( TransitionProbabilities )
-            OutputSequence.append( SampleDistributionFromPdf( TransitionProbabilities, 
+            indexSymbol = SampleDistributionFromPdf( TransitionProbabilities, 
                                                                 tuple( self.TransitionDictionary[ symbolT ].keys() ) 
-                                                                 ))
+                                                                 )
+            OutputSequence.append( indexSymbol )
         self.OutputSequence = OutputSequence
         
     def getTransitionDict(self ):
@@ -261,6 +267,8 @@ class DUDEOutputSequence( OutputSequence ):
 
     def __getTrueSymbol(self, positionI):
         z_i = self.ReceivedSequence[ positionI ]
+        if( z_i == None ):
+            print ("WTF")
         z_1to_K = self.ReceivedSequence[ positionI - self.ContextLength  : positionI  ]
         z1toK = self.ReceivedSequence[ positionI + 1 : positionI + self.ContextLength + 1 ]
         M = OrderedDict()
@@ -304,7 +312,7 @@ class DUDEOutputSequence( OutputSequence ):
 Length = 20000
 
 p1 = 0.94
-p2 = 0.0
+p2 = 0.03
 TransitionDictionary = OrderedDict( { 'A' : {'A':p1, 'G':p2, 'T':p2, 'C':.0},
                          'G' : {'A':p2, 'G':p1, 'T':p2, 'C':.0},
                          'T' : {'A':.0, 'G':p2, 'T':p1, 'C':p2},

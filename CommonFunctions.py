@@ -40,3 +40,8 @@ def PointWiseListDifference( List1, List2):
             Temp.append( 0 )
     print( sum( Temp ))
     return( Temp )
+
+def CheckProbabilitiesSumtoOne( Array ):
+    for i in Array:
+        if( sum(i) != 1 ):
+            print( "Probabilites not summing to one!")
