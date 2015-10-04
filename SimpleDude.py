@@ -440,14 +440,6 @@ class System:
     
     
     p= 0.1
-    TransitionDictionary = OrderedDict( { 
-                             'A' : OrderedDict( {'A':1-p, 'G':p/3, 'T':p/3, 'C':p/3} ),
-                             'G' : OrderedDict( {'A':p/3, 'G':1-p, 'T':p/3, 'C':p/3} ),
-                             'T' : OrderedDict( {'A':p/3, 'G':p/3, 'T':1-p, 'C':p/3} ),
-                             'C' : OrderedDict( {'A':p/3, 'G':p/3, 'T':p/3, 'C':1-p} )
-                            } )
-    Alphabet =  list( TransitionDictionary.keys() )
-            
     wrongSymbolLoss = 10
     rightSymbolLoss = 0.01
     LossFunction = OrderedDict ( 
@@ -475,7 +467,15 @@ class System:
         self.shouldIprint = shouldIprint
         self.MarkovSequenceLength = MarkovSequenceLength
         self.p = flipProbab
-        
+        p = self.p
+        self.TransitionDictionary = OrderedDict( { 
+                                 'A' : OrderedDict( {'A':1-p, 'G':p/3, 'T':p/3, 'C':p/3} ),
+                                 'G' : OrderedDict( {'A':p/3, 'G':1-p, 'T':p/3, 'C':p/3} ),
+                                 'T' : OrderedDict( {'A':p/3, 'G':p/3, 'T':1-p, 'C':p/3} ),
+                                 'C' : OrderedDict( {'A':p/3, 'G':p/3, 'T':p/3, 'C':1-p} )
+                                } )
+        self.Alphabet =  list( self.TransitionDictionary.keys() )
+                
     def printInformation(self):
         print( "Sequence Length for Markov (if applicable) ", self.MarkovSequenceLength)
         print( "Flip probability of DMC ", self.p)
