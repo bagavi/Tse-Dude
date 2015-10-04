@@ -237,7 +237,7 @@ class DUDEOutputSequence( OutputSequence ):
     SpoiltByContext = 0
     SpolitByWrongContext = 0
     passlimit = 2500
-    shouldIprint = False
+    shouldIprint = True
     def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3):
         OutputSequence.__init__( self, Channel.getOutputSequence() )
         self.Alphabet = Channel.getOutputAlphabet()
@@ -434,11 +434,23 @@ LossFunction = OrderedDict (
 q1 = .25
 q2 = .3
 q3 = .15
-MarkovSequenceLength = 1000*5
-MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':q1, 'G':q2, 'T':q2, 'C':q3} ),
-                                      'G' : OrderedDict( {'A':q2, 'G':q1, 'T':q2, 'C':q3} ),
-                                      'T' : OrderedDict( {'A':q3, 'G':q2, 'T':q1, 'C':q2} ),
-                                    'C' : OrderedDict( {'A':q3, 'G':q2, 'T':q2, 'C':q1} )
+if os.name == "posix":
+    MarkovSequenceLength = 100000*5
+else:
+    MarkovSequenceLength = 100000*5
+# MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':q1, 'G':q2, 'T':q2, 'C':q3} ),
+#                                       'G' : OrderedDict( {'A':q2, 'G':q1, 'T':q2, 'C':q3} ),
+#                                       'T' : OrderedDict( {'A':q3, 'G':q2, 'T':q1, 'C':q2} ),
+#                                     'C' : OrderedDict( {'A':q3, 'G':q2, 'T':q2, 'C':q1} )
+#                                     } )
+
+r1 = .6
+r2 = .4
+r3 = 0
+MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r3, 'C':r3} ),
+                                      'G' : OrderedDict( {'A':r3, 'G':r1, 'T':r2, 'C':r3} ),
+                                      'T' : OrderedDict( {'A':r3, 'G':r3, 'T':r1, 'C':r2} ),
+                                    'C' : OrderedDict( {'A':r2, 'G':r3, 'T':r3, 'C':r1} )
                                     } )
 ChainWeight = [.4, .25 , .2 , .1 , .05]
 ContextLength = 3
