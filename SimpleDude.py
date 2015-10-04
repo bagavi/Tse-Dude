@@ -308,12 +308,12 @@ class DUDEOutputSequence( OutputSequence ):
         # Counting the different types of errors and corrections
         if( z_i == self.InputSequence.Sequence [ positionI ] and z_i != minPenalty[ "letter" ] ):
             if( self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and
-                self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK and self.shouldIprint ): 
+                self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK  ): 
                 # implies that the context was right 
                 self.SpoiltByContext += 1
             else:
                 self.SpolitByWrongContext += 1
-        elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] and self.shouldIprint ):
+        elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
             self.CorrectedByContext += 1
 
         # Debugging tool START
@@ -332,11 +332,9 @@ class DUDEOutputSequence( OutputSequence ):
             if( self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and
                 self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK and self.shouldIprint ): 
                 # implies that the context was right 
-                self.SpoiltByContext += 1
                 print("%%%%%%%%%%%%%%%%%%%%%%%%%% Right Context but Spoilt %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             else:
                 print("%%%%%%%%%%%%%%%%%%%%%%%%%% Wrong Context and Spoilt %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-                self.SpolitByWrongContext += 1
             print("##################################################################################################")
             #Enter = input("Test")
                
@@ -350,7 +348,6 @@ class DUDEOutputSequence( OutputSequence ):
                 M[ letter ]=  self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )
                 print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
             print("##################################################################################################")
-            self.CorrectedByContext += 1
             print("%%%%%%%%%%%%%%%%%%%%%%%%%% Corrected %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint and 
                 self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
