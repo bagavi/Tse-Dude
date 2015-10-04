@@ -97,6 +97,7 @@ class IIDInputSequence( InputSequence ):
         
     # Generates the sequence
     def GenerateSequence( self ):
+        print( "Generating Input Sequence" )
         if( sum( self.AlphabetPriors ) != 1 ):
             print( "Priors for the letters do not sum upto one")
         
@@ -132,6 +133,7 @@ class MarkovModelSequence( InputSequence ):
         self.GenerateSequence()
     
     def GenerateSequence(self):
+        print( "Generating Input Sequence" )
         self.__generateFirstFewRandomBits()
         self.__RunMarkovChainForRandomBits()
         Del = "del"
@@ -195,6 +197,7 @@ class DiscreteMemoryChannel( Channel ):
     
     
     def CorruptSignal(self):
+        print( "Corrupting signal :P. Stop me if you can" )
         Sequence = self.InputSequence.getSequence()
         OutputSequence = [ ]
         #print( Sequence )
@@ -375,7 +378,7 @@ class DUDEOutputSequence( OutputSequence ):
 # Parameters of the whole system
 Length = 20000
 
-p1 = 0.9
+p1 = 0.5
 p2 = ( 1 - p1 )/2
 TransitionDictionary = OrderedDict( { 'A' : {'A':p1, 'G':p2, 'T':p2, 'C':.0},
                          'G' : {'A':p2, 'G':p1, 'T':p2, 'C':.0},
@@ -398,7 +401,7 @@ LossFunction = OrderedDict (
 q1 = .25
 q2 = .3
 q3 = .15
-MarkovSequenceLength = 10000
+MarkovSequenceLength = 100000
 MarkovTransitionDictionary = OrderedDict( { 'A' : {'A':q1, 'G':q2, 'T':q2, 'C':q3},
                                       'G' : {'A':q2, 'G':q1, 'T':q2, 'C':q3},
                                       'T' : {'A':q3, 'G':q2, 'T':q1, 'C':q2},
