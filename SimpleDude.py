@@ -458,10 +458,7 @@ class System:
                      'C' : OrderedDict( {'A':wrongSymbolLoss, 'G':wrongSymbolLoss, 'T':wrongSymbolLoss, 'C':rightSymbolLoss} )
                 })
     # Input Sequence Length
-    if os.name == "posix":
-        MarkovSequenceLength = 200000
-    else:
-        MarkovSequenceLength = 10000
+    MarkovSequenceLength = 0
     
     r1 = .6
     r2 = .4
@@ -515,6 +512,6 @@ class System:
         self.Output.DecodeSequence()
     
 
-Obj = System( ContextLength= 4, MarkovSequenceLength= 10^5, shouldIprint = True)
+Obj = System( ContextLength= 4, MarkovSequenceLength= 10e6|, shouldIprint = True)
 Obj.main()
 Obj.printInformation()
