@@ -515,13 +515,20 @@ class System:
 if len(sys.argv) > 1:
     ContextLength = int( sys.argv[1] )
 else:
-    ContextLength = 1e5
+    ContextLength = 3
 
 if len( sys.argv )> 2 :
     flipProbab = float( sys.argv[2] )
 else:
     flipProbab = 0.9
 
-Obj = System( ContextLength = ContextLength, MarkovSequenceLength= int( 10e6 ), flipProbab = flipProbab, shouldIprint = True)
+if len( sys.argv )> 3 :
+    SequenceLength = int( sys.argv[2] )
+else:
+    SequenceLength = 1e5
+
+
+
+Obj = System( ContextLength = ContextLength, MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
 Obj.main()
 Obj.printInformation()
