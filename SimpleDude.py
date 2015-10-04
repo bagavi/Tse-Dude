@@ -405,11 +405,12 @@ MarkovSequenceLength = 100000
 MarkovTransitionDictionary = OrderedDict( { 'A' : {'A':q1, 'G':q2, 'T':q2, 'C':q3},
                                       'G' : {'A':q2, 'G':q1, 'T':q2, 'C':q3},
                                       'T' : {'A':q3, 'G':q2, 'T':q1, 'C':q2},
-                                      'C' : {'A':q3, 'G':q2, 'T':q2, 'C':q1}
+                                    'C' : {'A':q3, 'G':q2, 'T':q2, 'C':q1}
                                     } )
 ChainWeight = [.4, .25 , .2 , .1 , .05]
 InputTest = MarkovModelSequence( Alphabet, MarkovSequenceLength, MarkovTransitionDictionary, ChainWeight)
 #print( InputTest.getSequence() )
+
 ChannelTest = DiscreteMemoryChannel( InputTest, TransitionDictionary )
 ContextLength = 2
 OutputTest = DUDEOutputSequence( ChannelTest, LossFunction, InputTest , ContextLength = ContextLength)
