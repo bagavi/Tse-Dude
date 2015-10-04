@@ -230,7 +230,7 @@ class DUDEOutputSequence( OutputSequence ):
     CorrectedByContext = 0
     SpoiltByContext = 0
     SpolitByWrongContext = 0
-    passlimit = 500
+    passlimit = 2500
     def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3):
         OutputSequence.__init__( self, Channel.getOutputSequence() )
         self.Alphabet = Channel.getOutputAlphabet()
@@ -398,7 +398,7 @@ LossFunction = OrderedDict (
 q1 = .25
 q2 = .3
 q3 = .15
-MarkovSequenceLength = 10000
+MarkovSequenceLength = 100000
 MarkovTransitionDictionary = OrderedDict( { 'A' : {'A':q1, 'G':q2, 'T':q2, 'C':q3},
                                       'G' : {'A':q2, 'G':q1, 'T':q2, 'C':q3},
                                       'T' : {'A':q3, 'G':q2, 'T':q1, 'C':q2},
