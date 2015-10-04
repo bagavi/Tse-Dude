@@ -1,3 +1,11 @@
+"""
+ This script implements three types of classes.
+ 
+ 1)Input Class - This class can generates inputs in different ways eg. IId, blockwise, markov
+ 2)Channel Class - This class modifies a input sequence according to the channel property. Eg. BSC, Erasure
+ 3)Output Class - This implements the output decoder. Eg DUDE 
+"""
+
 from abc import ABCMeta, abstractmethod
 from CommonFunctions import *
 import collections
@@ -116,20 +124,20 @@ class MarkovModelSequence( InputSequence ):
     
     def __init__(self, Alphabet, SequenceLength, TransitionDictionary, ChainWeight ):
         InputSequence.__init__( self, Alphabet, SequenceLength, Null = 0 )
-        self.TransitionDictionary = TransitionDictionary
-        self.AlphabetDictionaryKeyMap = dict( zip( TransitionDictionary.keys() , 
-                                                     range( 0 , len( TransitionDictionary.keys() ))))
-        self.ReverseAlphabetDictionaryKeyMap = dict( zip( range( 0 , len( TransitionDictionary.keys() )),
-                                                          TransitionDictionary.keys() ))
-        self.TransitionMatrix = MatrixFromDict( TransitionDictionary )
         
-
+        # Initializing the initial variables of the class
+        self.TransitionDictionary = TransitionDictionary
+        self.AlphabetDictionaryKeyMap = dict( zip( TransitionDictionary.keys() , range( 0 , len( TransitionDictionary.keys() ))))
+        self.ReverseAlphabetDictionaryKeyMap = dict( zip( range( 0 , len( TransitionDictionary.keys() )), TransitionDictionary.keys() ))
+        self.TransitionMatrix = MatrixFromDict( TransitionDictionary )
         self.ChainWeight = numpy.array( ChainWeight )
-
+        self.Sequence = []
+        
+        # Sanity checks
         CheckProbabilitiesSumtoOne( self.TransitionMatrix )
         CheckProbabilitiesSumtoOne( [ self.ChainWeight ] )
-
-        self.Sequence = []
+        
+        # Main function
         self.GenerateSequence()
     
     def GenerateSequence(self):
@@ -230,30 +238,42 @@ class DiscreteMemoryChannel( Channel ):
 """
 class DUDEOutputSequence( OutputSequence ):
 
-    
+    # Context length pf the context matching string
     ContextLength = 3 # IF ContextLength = 5, then k = 5, 2K+1 = 11
+    
+    # This is a hash table which stores number of times each context has been repeated
     HashDictionary = dict()
+    
+    #Stores the number of times the given algo has made a right correction
     CorrectedByContext = 0
+    
+    #Number of times the algo replaced a right symbol with a wrong one ( even though the conext was right)
     SpoiltByContext = 0
+    
+    #Number of times the algo replaced a right symbol with a wrong one ( because of the wrong context)
     SpolitByWrongContext = 0
+    
+    #print limit (ignore this)
     passlimit = 2500
     shouldIprint = True
-    def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3):
+    
+    def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3, shouldIprint = False):
         OutputSequence.__init__( self, Channel.getOutputSequence() )
         self.Alphabet = Channel.getOutputAlphabet()
         self.InputSequence = InputSequence
         self.ContextLength = ContextLength
+        self.shouldIprint = shouldIprint
+    
         #Transition matrix
         TransitionDictionary = Channel.getTransitionDict()
-        self.TransitionDictionaryKeyMap = dict( zip( TransitionDictionary.keys() , 
-                                                     range( 0 , len( TransitionDictionary.keys() ))))
+        self.TransitionDictionaryKeyMap = dict( zip( TransitionDictionary.keys(), range(0 , len(TransitionDictionary.keys()))))
         self.TransitionMatrix = MatrixFromDict( TransitionDictionary )
         self.InvTransitionMatrix = InverseMatrix( self.TransitionMatrix )
         
         #Loss Function
         self.LossFunction = LossFunction
         self.LossFunctionMatrix = MatrixFromDict( self.LossFunction )
-        self.LossFunctionKeyMap = dict( zip( LossFunction.keys() , range( 0 , len( LossFunction.keys() ))))
+        self.LossFunctionKeyMap = dict( zip( LossFunction.keys(), range( 0 , len(LossFunction.keys()))))
 
         # Default initializatioon of self.Sequence
         self.Sequence = [ None ] * len( self.ReceivedSequence )
@@ -287,15 +307,16 @@ class DUDEOutputSequence( OutputSequence ):
         print( "In Second pass")
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
             if i%self.passlimit == 0:
-                print( i, "   ",)
+                print(i)
             self.Sequence[ i ] = self.__getTrueSymbol( i )
 
     def __getTrueSymbol(self, positionI):
+        
+        # Initializing pre and post context sequence variables
         z_i = self.ReceivedSequence[ positionI ]
-        if( z_i == None ):
-            print ("WTF")
         z_1to_K = self.ReceivedSequence[ positionI - self.ContextLength  : positionI  ]
         z1toK = self.ReceivedSequence[ positionI + 1 : positionI + self.ContextLength + 1 ]
+        
         M = OrderedDict()
 #         print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], "Answer =", self.InputSequence.Sequence[ positionI ] )
 #         print( "Context = ", z_1to_K ," * ", z1toK, "Current symbol", z_i)
@@ -328,9 +349,19 @@ class DUDEOutputSequence( OutputSequence ):
                 self.SpolitByWrongContext += 1
         elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
             self.CorrectedByContext += 1
+    
+        if( self.shouldIprint ):
+            self.__debuggingSection(z_i, z_1to_K, z1toK, positionI, minPenalty, M)
+        #debugging tool END
+        return( minPenalty[ "letter" ] )
 
+    
+    """
+        This function is very ugly. This basically prints stuff if required
+    """    
+    def __debuggingSection(self, z_i, z_1to_K, z1toK, positionI, minPenalty, M):
         # Debugging tool START
-        if( z_i == self.InputSequence.Sequence [ positionI ] and z_i != minPenalty[ "letter" ] and self.shouldIprint):
+        if( z_i == self.InputSequence.Sequence [ positionI ] and z_i != minPenalty[ "letter" ] ):
             print("##################################################################################################")
             print( "( ", positionI, ")", "WTF, the algorithm changed the right symbol ", z_i, "to ", minPenalty[ "letter" ] )
             print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
@@ -340,7 +371,7 @@ class DUDEOutputSequence( OutputSequence ):
                 M[ letter ]=  self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  )
                 print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
             print("***********************************")
-            x = self.__printDictionaryValues(self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ], z_i,
+            self.__printDictionaryValues(self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ], z_i,
                                         self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] ,self.Alphabet)
             if( self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and
                 self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK and self.shouldIprint ): 
@@ -351,7 +382,7 @@ class DUDEOutputSequence( OutputSequence ):
             print("##################################################################################################")
             #Enter = input("Test")
                
-        elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] and self.shouldIprint ):
+        elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
             print("##################################################################################################")
             print( "!!!!!!!!!!, the algorithm did the right thing ", z_i, "to ", minPenalty[ "letter" ] )
             print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
@@ -375,9 +406,6 @@ class DUDEOutputSequence( OutputSequence ):
                 Enter = str( input("Enter something!!") )
            
         
-        #debugging tool END
-        return( minPenalty[ "letter" ] )
-    
     
     #Debuggin Tool
     def __printDictionaryValues(self, pre, z_i, post, Alphabet ):
@@ -409,77 +437,85 @@ class DUDEOutputSequence( OutputSequence ):
         print( minPenalty )
         return( minPenalty[ "letter"])
 
-# Parameters of the whole system
-Length = 20000
+class System:
+    
+    
+    p= 0.1
+    TransitionDictionary = OrderedDict( { 
+                             'A' : OrderedDict( {'A':1-p, 'G':p/3, 'T':p/3, 'C':p/3} ),
+                             'G' : OrderedDict( {'A':p/3, 'G':1-p, 'T':p/3, 'C':p/3} ),
+                             'T' : OrderedDict( {'A':p/3, 'G':p/3, 'T':1-p, 'C':p/3} ),
+                             'C' : OrderedDict( {'A':p/3, 'G':p/3, 'T':p/3, 'C':1-p} )
+                            } )
+    Alphabet =  list( TransitionDictionary.keys() )
+            
+    wrongSymbolLoss = 10
+    rightSymbolLoss = 0.01
+    LossFunction = OrderedDict ( 
+                   { 'A' : OrderedDict( {'A':rightSymbolLoss, 'G':wrongSymbolLoss, 'T':wrongSymbolLoss, 'C':wrongSymbolLoss} ),
+                     'G' : OrderedDict( {'A':wrongSymbolLoss, 'G':rightSymbolLoss, 'T':wrongSymbolLoss, 'C':wrongSymbolLoss} ),
+                     'T' : OrderedDict( {'A':wrongSymbolLoss, 'G':wrongSymbolLoss, 'T':rightSymbolLoss, 'C':wrongSymbolLoss} ),
+                     'C' : OrderedDict( {'A':wrongSymbolLoss, 'G':wrongSymbolLoss, 'T':wrongSymbolLoss, 'C':rightSymbolLoss} )
+                })
+    # Input Sequence Length
+    if os.name == "posix":
+        MarkovSequenceLength = 200000
+    else:
+        MarkovSequenceLength = 10000
+    
+    r1 = .6
+    r2 = .4
+    r3 = 0
+    MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r3, 'C':r3} ),
+                                          'G' : OrderedDict( {'A':r3, 'G':r1, 'T':r2, 'C':r3} ),
+                                          'T' : OrderedDict( {'A':r3, 'G':r3, 'T':r1, 'C':r2} ),
+                                        'C' : OrderedDict( {'A':r2, 'G':r3, 'T':r3, 'C':r1} )
+                                        } )
+    ChainWeight = [.4, .25 , .2 , .1 , .05]
+    ContextLength = 3
+    
+    def __init__(self, ContextLength = 3, MarkovSequenceLength = 10000, shouldIprint = False):
+        self.ContextLength = ContextLength
+        self.shouldIprint = shouldIprint
+        if os.name == "posix":
+             self.MarkovSequenceLength = MarkovSequenceLength
+        
+    def printInformation(self):
+        print( "Sequence Length for Markov (if applicable) ", self.MarkovSequenceLength)
+        print( "Flip probability of DMC ", self.p)
+        print( "Dude Loss dictionary", self.LossFunction)
+        print( "DUDE context length" , self.ContextLength)
+        print( "Partial Input Sequence", self.Input.getSequence()[ : 500])
+        
+        # Done with calling functions
+        Input = self.Input.getSequence()
+        Received = self.Output.ReceivedSequence
+        Corrected = self.Output.Sequence
+    
+        z = PointWiseListDifference( Input, Received)
+        print( "Changes made by channel", sum(z))
+        z = PointWiseListDifference( Input, Corrected)
+        print( "Difference between actual and corrected sequence", sum( z ) )
+        z = PointWiseListDifference( Received, Corrected)
+        print( "Difference between received and corrected sequence",sum( z ) )
+        print( "Correct changes Made by the right context", self.Output.CorrectedByContext)
+        print( "Number of spoils by the right context", self.Output.SpoiltByContext)
+        print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
 
-p1 = 0.9
-p2 = ( 1 - p1 )/3
-TransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':p1, 'G':p2, 'T':p2, 'C':p2} ),
-                         'G' : OrderedDict( {'A':p2, 'G':p1, 'T':p2, 'C':p2} ),
-                         'T' : OrderedDict( {'A':p2, 'G':p2, 'T':p1, 'C':p2} ),
-                         'C' : OrderedDict( {'A':p2, 'G':p2, 'T':p2, 'C':p1} )
-                        } )
-Alphabet =  list( TransitionDictionary.keys() )
-AlphabetPriors = [0.2,0.3,0.3,.2]
-l1 = 10
-l2 = 0.01
-LossFunction = OrderedDict ( 
-               { 'A' : OrderedDict( {'A':l2, 'G':l1, 'T':l1, 'C':l1} ),
-                 'G' : OrderedDict( {'A':l1, 'G':l2, 'T':l1, 'C':l1} ),
-                 'T' : OrderedDict( {'A':l1, 'G':l1, 'T':l2, 'C':l1} ),
-                 'C' : OrderedDict( {'A':l1, 'G':l1, 'T':l1, 'C':l2} )
-            })
-# Running Functions
-#InputTest = IIDInputSequence( Alphabet, Length, AlphabetPriors )
-#InputTest = BlockwiseIndependentSequence( Alphabet, 5000 )
-q1 = .25
-q2 = .3
-q3 = .15
-if os.name == "posix":
-    MarkovSequenceLength = 200000
-else:
-    MarkovSequenceLength = 10000
-# MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':q1, 'G':q2, 'T':q2, 'C':q3} ),
-#                                       'G' : OrderedDict( {'A':q2, 'G':q1, 'T':q2, 'C':q3} ),
-#                                       'T' : OrderedDict( {'A':q3, 'G':q2, 'T':q1, 'C':q2} ),
-#                                     'C' : OrderedDict( {'A':q3, 'G':q2, 'T':q2, 'C':q1} )
-#                                     } )
+    def main(self):
+        #Calling the functions
+        # Creating a MarkovModel Input Sequence
+        self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
+        
+        # Creating the channel class
+        Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+        # Creating the output class
+        self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input , ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+        
+        #Decoding the Sequence
+        self.Output.DecodeSequence()
+    
 
-r1 = .6
-r2 = .4
-r3 = 0
-MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r3, 'C':r3} ),
-                                      'G' : OrderedDict( {'A':r3, 'G':r1, 'T':r2, 'C':r3} ),
-                                      'T' : OrderedDict( {'A':r3, 'G':r3, 'T':r1, 'C':r2} ),
-                                    'C' : OrderedDict( {'A':r2, 'G':r3, 'T':r3, 'C':r1} )
-                                    } )
-ChainWeight = [.4, .25 , .2 , .1 , .05]
-ContextLength = 3
-
-print( "Sequence Length for Markov (if applicable) ", MarkovSequenceLength)
-print( "Flip probability of DMC ", ( 1- p1))
-print( "Dude Loss dictionary", LossFunction)
-print( "DUDE context length" , ContextLength)
-
-#Calling the functions
-InputTest = MarkovModelSequence( Alphabet, MarkovSequenceLength, MarkovTransitionDictionary, ChainWeight)
-print( "Partial Input Sequence", InputTest.getSequence() [ : 500])
-ChannelTest = DiscreteMemoryChannel( InputTest, TransitionDictionary )
-OutputTest = DUDEOutputSequence( ChannelTest, LossFunction, InputTest , ContextLength = ContextLength)
-OutputTest.DecodeSequence()
-
-# Done with calling functions
-Input = InputTest.getSequence()
-Received = OutputTest.ReceivedSequence
-Corrected = OutputTest.Sequence
-
-
-z = PointWiseListDifference( Input, Received)
-print( "Changes made by channel", sum(z))
-z = PointWiseListDifference( Input, Corrected)
-print( "Difference between actual and corrected sequence", sum( z ) )
-z = PointWiseListDifference( Received, Corrected)
-print( "Difference between received and corrected sequence",sum( z ) )
-print( "Correct changes Made by the right context", OutputTest.CorrectedByContext)
-print( "Number of spoils by the right context", OutputTest.SpoiltByContext)
-print( "Number of spoils by the wrong context", OutputTest.SpolitByWrongContext)
+Obj = System( ContextLength= 4, MarkovSequenceLength= 10^4, shouldIprint = False)
+Obj.main()
+Obj.printInformation()
