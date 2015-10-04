@@ -321,7 +321,9 @@ class DUDEOutputSequence( OutputSequence ):
                 self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK ): 
                 # implies that the context was right 
                 self.SpoiltByContext += 1
+                print("%%%%%%%%%%%%%%%%%%%%%%%%%% Right Context but Spoilt %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             else:
+                print("%%%%%%%%%%%%%%%%%%%%%%%%%% Wrong Context and Spoilt %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
                 self.SpolitByWrongContext += 1
             print("##################################################################################################")
             #Enter = input("Test")
@@ -337,6 +339,8 @@ class DUDEOutputSequence( OutputSequence ):
                 print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
             print("##################################################################################################")
             self.CorrectedByContext += 1
+            print("%%%%%%%%%%%%%%%%%%%%%%%%%% Corrected %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
             #Enter = input("Test")
            
         
