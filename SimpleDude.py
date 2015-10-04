@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from CommonFunctions import *
 import collections
 from collections import OrderedDict
-import random
+import os
 
 """
     Generic Sequence Class. Defines generic functions on sequences
@@ -266,7 +266,7 @@ class DUDEOutputSequence( OutputSequence ):
     def __FirstPass(self):
         print( "In First pass")
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
-            if i%self.passlimit == 0:
+            if i%(self.passlimit*10) == 0:
                 print( i, "   ",)
             TWOkSequence = tuple( self.ReceivedSequence[ i - self.ContextLength : i + self.ContextLength + 1 ] )
             self.HashDictionary[ TWOkSequence ] = self.HashDictionary.get( TWOkSequence, 0) + 1
@@ -358,7 +358,8 @@ class DUDEOutputSequence( OutputSequence ):
        
             self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [  self.InputSequence.Sequence[ positionI ], minPenalty[ "letter" ] ] )
             print("##################################################################################################")
-            #Enter = input("Test")
+            if os.name == "posix":  
+                Enter = input("Test")
            
         
         #debugging tool END
