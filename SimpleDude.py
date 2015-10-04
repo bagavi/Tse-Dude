@@ -233,7 +233,7 @@ class DUDEOutputSequence( OutputSequence ):
     CorrectedByContext = 0
     SpoiltByContext = 0
     SpolitByWrongContext = 0
-    passlimit = 500
+    passlimit = 2500
     def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3):
         OutputSequence.__init__( self, Channel.getOutputSequence() )
         self.Alphabet = Channel.getOutputAlphabet()
