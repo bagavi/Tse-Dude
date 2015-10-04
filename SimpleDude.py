@@ -299,6 +299,7 @@ class DUDEOutputSequence( OutputSequence ):
                                 self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],
                                 self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ z_i ] ]
                             )
+            # mT_Pi_inv is P(Xt/ z^{n/t}
             Penalty = LossVector.dot(mT_Pi_inv)
 #             print( "Letter and its loss function ", letter, LossVector, Penalty)
             if( minPenalty[ "value" ]  > Penalty):
@@ -349,7 +350,7 @@ class DUDEOutputSequence( OutputSequence ):
                 print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
             print("##################################################################################################")
             print("%%%%%%%%%%%%%%%%%%%%%%%%%% Corrected %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint and 
+        elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint  and 
                 self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
                 self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK ):
             print( positionI, "  !!!!!!!!!!, No change by the algo",  ". Our algo =", minPenalty[ "letter" ], "Received letter", z_i)
@@ -359,7 +360,7 @@ class DUDEOutputSequence( OutputSequence ):
             self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [  self.InputSequence.Sequence[ positionI ], minPenalty[ "letter" ] ] )
             print("##################################################################################################")
             if os.name == "posix":  
-                Enter = input("Test")
+                Enter = input("Enter something!!")
            
         
         #debugging tool END
@@ -391,13 +392,15 @@ class DUDEOutputSequence( OutputSequence ):
                                 self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ z_i ] ]
                             )
             Penalty = LossVector.dot(mT_Pi_inv)
-            print( "Letter and its loss function ", letter, LossVector, Penalty)
+            print( "Letter, its loss function, Transition Column ", letter,  self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],  self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ letter ] ]
+                                )
             if( minPenalty[ "value" ]  > Penalty):
                 minPenalty[ "value" ]  = Penalty
                 minPenalty[ "letter" ] = letter
         
         print( minPenalty )
         return( minPenalty[ "letter"])
+
 # Parameters of the whole system
 Length = 20000
 
@@ -431,23 +434,24 @@ MarkovTransitionDictionary = OrderedDict( { 'A' : {'A':q1, 'G':q2, 'T':q2, 'C':q
                                     'C' : {'A':q3, 'G':q2, 'T':q2, 'C':q1}
                                     } )
 ChainWeight = [.4, .25 , .2 , .1 , .05]
-InputTest = MarkovModelSequence( Alphabet, MarkovSequenceLength, MarkovTransitionDictionary, ChainWeight)
-#print( InputTest.getSequence() )
-
-ChannelTest = DiscreteMemoryChannel( InputTest, TransitionDictionary )
 ContextLength = 3
-OutputTest = DUDEOutputSequence( ChannelTest, LossFunction, InputTest , ContextLength = ContextLength)
-OutputTest.DecodeSequence()
-Input = InputTest.getSequence()
-Received = OutputTest.ReceivedSequence
-Corrected = OutputTest.Sequence
-#print(a)
-#print(b)
-#print(c)
+
 print( "Sequence Length for Markov (if applicable) ", MarkovSequenceLength)
 print( "Flip probability of DMC ", ( 1- p1))
 print( "Dude Loss dictionary", LossFunction)
 print( "DUDE context length" , ContextLength)
+
+#Calling the functions
+InputTest = MarkovModelSequence( Alphabet, MarkovSequenceLength, MarkovTransitionDictionary, ChainWeight)
+ChannelTest = DiscreteMemoryChannel( InputTest, TransitionDictionary )
+OutputTest = DUDEOutputSequence( ChannelTest, LossFunction, InputTest , ContextLength = ContextLength)
+OutputTest.DecodeSequence()
+
+# Done with calling functions
+Input = InputTest.getSequence()
+Received = OutputTest.ReceivedSequence
+Corrected = OutputTest.Sequence
+
 
 z = PointWiseListDifference( Input, Received)
 print( "Changes made by channel", sum(z))
