@@ -8,7 +8,7 @@
 
 from abc import ABCMeta, abstractmethod
 from CommonFunctions import *
-import collections, os, sys
+import collections, os, sys, time
 from collections import OrderedDict
 
 """
@@ -151,7 +151,7 @@ class MarkovModelSequence( InputSequence ):
     def __RunMarkovChainForRandomBits(self):
         
         for i in range( len( self.ChainWeight ), self.SequenceLength ):
-            if i%5000 == 0:
+            if i%50000 == 0:
                 print( i )
             PMatrix = []
             for j in range( len( self.ChainWeight ) ):
@@ -253,7 +253,7 @@ class DUDEOutputSequence( OutputSequence ):
     SpolitByWrongContext = 0
     
     #print limit (ignore this)
-    passlimit = 2500
+    passlimit = 25000
     shouldIprint = True
     
     def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3, shouldIprint = False):
@@ -298,7 +298,7 @@ class DUDEOutputSequence( OutputSequence ):
         print( "In First pass")
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
             if i%(self.passlimit*10) == 0:
-                print( i, "   ",)
+                print( i, "   ",self.SequenceLength)
             TWOkSequence = tuple( self.ReceivedSequence[ i - self.ContextLength : i + self.ContextLength + 1 ] )
             self.HashDictionary[ TWOkSequence ] = self.HashDictionary.get( TWOkSequence, 0) + 1
     
@@ -481,7 +481,7 @@ class System:
         print( "Flip probability of DMC ", self.p)
         print( "Dude Loss dictionary", self.LossFunction)
         print( "DUDE context length" , self.ContextLength)
-        print( "Partial Input Sequence", self.Input.getSequence()[ : 500])
+#         print( "Partial Input Sequence", self.Input.getSequence()[ : 500])
         
         # Done with calling functions
         Input = self.Input.getSequence()
@@ -497,8 +497,8 @@ class System:
         print( "Correct changes Made by the right context", self.Output.CorrectedByContext)
         print( "Number of spoils by the right context", self.Output.SpoiltByContext)
         print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
-        print( "Fraction of errors still remaining", sum( z2 )/self.MarkovSequenceLength)
-        print( "Fraction of symbols edited by DUDE", sum( z3 )/self.MarkovSequenceLength)
+        print( "Percentage of errors still remaining", sum( z2 )*100/self.MarkovSequenceLength)
+        print( "Fraction of symbols edited by DUDE", sum( z3 )*100/self.MarkovSequenceLength)
         
 
     def main(self):
@@ -514,6 +514,7 @@ class System:
         #Decoding the Sequence
         self.Output.DecodeSequence()
     
+StartTime = time.time()
 # From terminal
 if len(sys.argv) > 1:
     ContextLength = int( sys.argv[1] )
@@ -535,3 +536,4 @@ else:
 Obj = System( ContextLength = ContextLength, MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
 Obj.main()
 Obj.printInformation()
+print( "total execution time", time.time() - StartTime)
