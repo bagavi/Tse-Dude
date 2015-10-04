@@ -497,8 +497,8 @@ class System:
         print( "Correct changes Made by the right context", self.Output.CorrectedByContext)
         print( "Number of spoils by the right context", self.Output.SpoiltByContext)
         print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
-        print( "Fraction of errors still remaining", z2/self.MarkovSequenceLength)
-        print( "Fraction of symbols edited by DUDE", z3/self.MarkovSequenceLength)
+        print( "Fraction of errors still remaining", sum( z2 )/self.MarkovSequenceLength)
+        print( "Fraction of symbols edited by DUDE", sum( z3 )/self.MarkovSequenceLength)
         
 
     def main(self):
@@ -528,7 +528,7 @@ else:
 if len( sys.argv )> 3 :
     SequenceLength = int( sys.argv[3] )
 else:
-    SequenceLength = int( 1e5 )
+    SequenceLength = int( 1e3 )
 
 
 
