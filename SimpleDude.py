@@ -136,7 +136,6 @@ class MarkovModelSequence( InputSequence ):
         print( "Generating Input Sequence" )
         self.__generateFirstFewRandomBits()
         self.__RunMarkovChainForRandomBits()
-        Del = "del"
         
     def __generateFirstFewRandomBits(self):
         for j in range( len( self.ChainWeight ) ):
@@ -205,6 +204,8 @@ class DiscreteMemoryChannel( Channel ):
         #print( Sequence )
         for index, symbolT in enumerate( Sequence ):
             #print ( symbolT, index, "\n")
+            if index%5000 == 0:
+                print( index )
             TransitionProbabilities = tuple( self.TransitionDictionary[symbolT].values() )
             #print( TransitionProbabilities )
             indexSymbol = SampleDistributionFromPdf( TransitionProbabilities, 
@@ -392,11 +393,14 @@ class DUDEOutputSequence( OutputSequence ):
             LossVector = MultiplyVectorsComponenetWise(
                                 self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],
                                 self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ z_i ] ]
-                            )
+                            ) 
             Penalty = LossVector.dot(mT_Pi_inv)
+            print( "Loss function matrix", self.LossFunctionMatrix, "\n")
+            print( "Transition Matrix", self.TransitionMatrix, "\n")
             print( "matrix", mT_Pi_inv)
             print( "Letter, its loss function, Transition Column ", letter,  self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],  self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ letter ] ]
                                 )
+            print( "letter", Penalty)
             if( minPenalty[ "value" ]  > Penalty):
                 minPenalty[ "value" ]  = Penalty
                 minPenalty[ "letter" ] = letter
