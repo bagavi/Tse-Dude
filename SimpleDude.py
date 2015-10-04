@@ -477,8 +477,7 @@ class System:
     def __init__(self, ContextLength = 3, MarkovSequenceLength = 10000, shouldIprint = False):
         self.ContextLength = ContextLength
         self.shouldIprint = shouldIprint
-        if os.name == "posix":
-             self.MarkovSequenceLength = MarkovSequenceLength
+        self.MarkovSequenceLength = MarkovSequenceLength
         
     def printInformation(self):
         print( "Sequence Length for Markov (if applicable) ", self.MarkovSequenceLength)
@@ -516,6 +515,6 @@ class System:
         self.Output.DecodeSequence()
     
 
-Obj = System( ContextLength= 4, MarkovSequenceLength= 10^4, shouldIprint = False)
+Obj = System( ContextLength= 4, MarkovSequenceLength= 10^5, shouldIprint = True)
 Obj.main()
 Obj.printInformation()
