@@ -400,7 +400,7 @@ class DUDEOutputSequence( OutputSequence ):
             print( "matrix", mT_Pi_inv)
             print( "Letter, its loss function, Transition Column ", letter,  self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],  self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ letter ] ]
                                 )
-            print( "letter", Penalty)
+            print( "Penalty", Penalty)
             if( minPenalty[ "value" ]  > Penalty):
                 minPenalty[ "value" ]  = Penalty
                 minPenalty[ "letter" ] = letter
@@ -412,21 +412,21 @@ class DUDEOutputSequence( OutputSequence ):
 Length = 20000
 
 p1 = 0.9
-p2 = ( 1 - p1 )/2
-TransitionDictionary = OrderedDict( { 'A' : {'A':p1, 'G':p2, 'T':p2, 'C':.0},
-                         'G' : {'A':p2, 'G':p1, 'T':p2, 'C':.0},
-                         'T' : {'A':.0, 'G':p2, 'T':p1, 'C':p2},
-                         'C' : {'A':.0, 'G':p2, 'T':p2, 'C':p1}
+p2 = ( 1 - p1 )/3
+TransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':p1, 'G':p2, 'T':p2, 'C':p2} ),
+                         'G' : OrderedDict( {'A':p2, 'G':p1, 'T':p2, 'C':p2} ),
+                         'T' : OrderedDict( {'A':p2, 'G':p2, 'T':p1, 'C':p2} ),
+                         'C' : OrderedDict( {'A':p2, 'G':p2, 'T':p2, 'C':p1} )
                         } )
 Alphabet =  list( TransitionDictionary.keys() )
 AlphabetPriors = [0.2,0.3,0.3,.2]
 l1 = 10
-l2 = 5
+l2 = 0.01
 LossFunction = OrderedDict ( 
-               { 'A' : {'A':l2, 'G':l1, 'T':l1, 'C':l1},
-                 'G' : {'A':l1, 'G':l2, 'T':l1, 'C':l1},
-                 'T' : {'A':l1, 'G':l1, 'T':l2, 'C':l1},
-                 'C' : {'A':l1, 'G':l1, 'T':l1, 'C':l2}
+               { 'A' : OrderedDict( {'A':l2, 'G':l1, 'T':l1, 'C':l1} ),
+                 'G' : OrderedDict( {'A':l1, 'G':l2, 'T':l1, 'C':l1} ),
+                 'T' : OrderedDict( {'A':l1, 'G':l1, 'T':l2, 'C':l1} ),
+                 'C' : OrderedDict( {'A':l1, 'G':l1, 'T':l1, 'C':l2} )
             })
 # Running Functions
 #InputTest = IIDInputSequence( Alphabet, Length, AlphabetPriors )
@@ -434,11 +434,11 @@ LossFunction = OrderedDict (
 q1 = .25
 q2 = .3
 q3 = .15
-MarkovSequenceLength = 100000*5
-MarkovTransitionDictionary = OrderedDict( { 'A' : {'A':q1, 'G':q2, 'T':q2, 'C':q3},
-                                      'G' : {'A':q2, 'G':q1, 'T':q2, 'C':q3},
-                                      'T' : {'A':q3, 'G':q2, 'T':q1, 'C':q2},
-                                    'C' : {'A':q3, 'G':q2, 'T':q2, 'C':q1}
+MarkovSequenceLength = 1000*5
+MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':q1, 'G':q2, 'T':q2, 'C':q3} ),
+                                      'G' : OrderedDict( {'A':q2, 'G':q1, 'T':q2, 'C':q3} ),
+                                      'T' : OrderedDict( {'A':q3, 'G':q2, 'T':q1, 'C':q2} ),
+                                    'C' : OrderedDict( {'A':q3, 'G':q2, 'T':q2, 'C':q1} )
                                     } )
 ChainWeight = [.4, .25 , .2 , .1 , .05]
 ContextLength = 3
