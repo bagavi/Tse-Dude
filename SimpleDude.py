@@ -488,15 +488,18 @@ class System:
         Received = self.Output.ReceivedSequence
         Corrected = self.Output.Sequence
     
-        z = PointWiseListDifference( Input, Received)
-        print( "Changes made by channel", sum(z))
-        z = PointWiseListDifference( Input, Corrected)
-        print( "Difference between actual and corrected sequence", sum( z ) )
-        z = PointWiseListDifference( Received, Corrected)
-        print( "Difference between received and corrected sequence",sum( z ) )
+        z1 = PointWiseListDifference( Input, Received)
+        print( "Changes made by channel", sum(z1))
+        z2 = PointWiseListDifference( Input, Corrected)
+        print( "Difference between actual and corrected sequence", sum( z2 ) )
+        z3 = PointWiseListDifference( Received, Corrected)
+        print( "Difference between received and corrected sequence",sum( z3 ) )
         print( "Correct changes Made by the right context", self.Output.CorrectedByContext)
         print( "Number of spoils by the right context", self.Output.SpoiltByContext)
         print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
+        print( "Fraction of errors still remaining", z2/self.MarkovSequenceLength)
+        print( "Fraction of symbols edited by DUDE", z3/self.MarkovSequenceLength)
+        
 
     def main(self):
         #Calling the functions
