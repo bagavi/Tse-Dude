@@ -145,6 +145,8 @@ class MarkovModelSequence( InputSequence ):
     def __RunMarkovChainForRandomBits(self):
         
         for i in range( len( self.ChainWeight ), self.SequenceLength ):
+            if i%5000 == 0:
+                print( i )
             PMatrix = []
             for j in range( len( self.ChainWeight ) ):
                 letter_i_minus_j = self.Sequence[ i - 1 -j ]
@@ -360,7 +362,7 @@ class DUDEOutputSequence( OutputSequence ):
             self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [  self.InputSequence.Sequence[ positionI ], minPenalty[ "letter" ] ] )
             print("##################################################################################################")
             if os.name == "posix":  
-                Enter = input("Enter something!!")
+                Enter = str( input("Enter something!!") )
            
         
         #debugging tool END
@@ -392,6 +394,7 @@ class DUDEOutputSequence( OutputSequence ):
                                 self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ z_i ] ]
                             )
             Penalty = LossVector.dot(mT_Pi_inv)
+            print( "matrix", mT_Pi_inv)
             print( "Letter, its loss function, Transition Column ", letter,  self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],  self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ letter ] ]
                                 )
             if( minPenalty[ "value" ]  > Penalty):
