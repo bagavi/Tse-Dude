@@ -227,7 +227,10 @@ class DUDEOutputSequence( OutputSequence ):
     
     ContextLength = 3 # IF ContextLength = 5, then k = 5, 2K+1 = 11
     HashDictionary = dict()
-        
+    CorrectedByContext = 0
+    SpoiltByContext = 0
+    SpolitByWrongContext = 0
+    passlimit = 500
     def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3):
         OutputSequence.__init__( self, Channel.getOutputSequence() )
         self.Alphabet = Channel.getOutputAlphabet()
@@ -257,12 +260,18 @@ class DUDEOutputSequence( OutputSequence ):
     
     # Calculates m( z^n, z_{i-1}^{i-k}, z_{i+1}^{i+k} ] [z_i ]
     def __FirstPass(self):
+        print( "In First pass")
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
+            if i%self.passlimit == 0:
+                print( i, "   ",)
             TWOkSequence = tuple( self.ReceivedSequence[ i - self.ContextLength : i + self.ContextLength + 1 ] )
             self.HashDictionary[ TWOkSequence ] = self.HashDictionary.get( TWOkSequence, 0) + 1
     
     def __SecondPass(self):
+        print( "In Second pass")
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
+            if i%self.passlimit == 0:
+                print( i, "   ",)
             self.Sequence[ i ] = self.__getTrueSymbol( i )
 
     def __getTrueSymbol(self, positionI):
@@ -291,12 +300,44 @@ class DUDEOutputSequence( OutputSequence ):
             if( minPenalty[ "value" ]  > Penalty):
                 minPenalty[ "value" ]  = Penalty
                 minPenalty[ "letter" ] = letter
-#         print( minPenalty[ "letter"] )
+
+        # Debugging tool START
         if( z_i == self.InputSequence.Sequence [ positionI ] and z_i != minPenalty[ "letter" ] ):
-            print( "WTF" )
+            print("##################################################################################################")
+            print( "( ", positionI, ")", "WTF, the algorithm changed the right symbol ", z_i, "to ", minPenalty[ "letter" ] )
+            print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
+            print( "Context = ", z_1to_K ," * ", z1toK, "Current symbol", z_i)
+            for letter in self.Alphabet:
+                # Fraction of context with z_1to_K + letter + z1toK
+                M[ letter ]=  self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  )
+                print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
+            print("***********************************")
+            x = self.__printDictionaryValues(self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ], z_i,
+                                        self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ])
+            if( self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and
+                self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK ): 
+                # implies that the context was right 
+                self.SpoiltByContext += 1
+            else:
+                self.SpolitByWrongContext += 1
+            print("##################################################################################################")
+            #Enter = input("Test")
+               
         if( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
-            Enter = "Enter"
+            print("##################################################################################################")
+            print( "!!!!!!!!!!, the algorithm did the right thing ", z_i, "to ", minPenalty[ "letter" ] )
+            print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
+            print( "Context = ", z_1to_K ," * ", z1toK, "Current symbol", z_i)
+            for letter in self.Alphabet:
+                # Fraction of context with z_1to_K + letter + z1toK
+                M[ letter ]=  self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  )
+                print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
+            print("##################################################################################################")
+            self.CorrectedByContext += 1
+            #Enter = input("Test")
+           
         
+        #debugging tool END
         return( minPenalty[ "letter" ] )
     
     def __AddBoundaryLength(self):
@@ -307,12 +348,35 @@ class DUDEOutputSequence( OutputSequence ):
         
     def __getDictProbabilites(self, key ):
         return( self.HashDictionary.get( tuple(key), 0) )
+    
+    #Debuggin Tool
+    def __printDictionaryValues(self, pre, z_i,post):
+        M = {}
+        for letter in self.Alphabet:
+            # Fraction of context with z_1to_K + letter + z1toK
+            M[ letter ] =  self.__getDictProbabilites(  pre + [ letter ] + post  )
+            print( "Probab for = ",pre,  letter, post, M [ letter ] )
 
+        mT_Pi_inv = numpy.array( list( M.values() ) ).dot( self.InvTransitionMatrix )
+        minPenalty = { "letter": None, "value": numpy.Infinity }
+        for letter in self.Alphabet:
+            LossVector = MultiplyVectorsComponenetWise(
+                                self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],
+                                self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ z_i ] ]
+                            )
+            Penalty = LossVector.dot(mT_Pi_inv)
+#             print( "Letter and its loss function ", letter, LossVector, Penalty)
+            if( minPenalty[ "value" ]  > Penalty):
+                minPenalty[ "value" ]  = Penalty
+                minPenalty[ "letter" ] = letter
+        
+        print( minPenalty )
+        return( minPenalty[ "letter"])
 # Parameters of the whole system
 Length = 20000
 
-p1 = 0.94
-p2 = 0.03
+p1 = 0.9
+p2 = ( 1 - p1 )/2
 TransitionDictionary = OrderedDict( { 'A' : {'A':p1, 'G':p2, 'T':p2, 'C':.0},
                          'G' : {'A':p2, 'G':p1, 'T':p2, 'C':.0},
                          'T' : {'A':.0, 'G':p2, 'T':p1, 'C':p2},
@@ -334,30 +398,36 @@ LossFunction = OrderedDict (
 q1 = .25
 q2 = .3
 q3 = .15
+MarkovSequenceLength = 10000
 MarkovTransitionDictionary = OrderedDict( { 'A' : {'A':q1, 'G':q2, 'T':q2, 'C':q3},
                                       'G' : {'A':q2, 'G':q1, 'T':q2, 'C':q3},
                                       'T' : {'A':q3, 'G':q2, 'T':q1, 'C':q2},
                                       'C' : {'A':q3, 'G':q2, 'T':q2, 'C':q1}
                                     } )
 ChainWeight = [.4, .25 , .2 , .1 , .05]
-InputTest = MarkovModelSequence( Alphabet, 1000, MarkovTransitionDictionary, ChainWeight)
+InputTest = MarkovModelSequence( Alphabet, MarkovSequenceLength, MarkovTransitionDictionary, ChainWeight)
 #print( InputTest.getSequence() )
 ChannelTest = DiscreteMemoryChannel( InputTest, TransitionDictionary )
 ContextLength = 2
 OutputTest = DUDEOutputSequence( ChannelTest, LossFunction, InputTest , ContextLength = ContextLength)
 OutputTest.DecodeSequence()
-a = InputTest.getSequence()
-b = OutputTest.ReceivedSequence
-c = OutputTest.Sequence
+Input = InputTest.getSequence()
+Received = OutputTest.ReceivedSequence
+Corrected = OutputTest.Sequence
 #print(a)
 #print(b)
 #print(c)
-z = PointWiseListDifference( a, b)
+print( "Sequence Length for Markov (if applicable) ", MarkovSequenceLength)
 print( "Flip probability of DMC ", ( 1- p1))
 print( "Dude Loss dictionary", LossFunction)
 print( "DUDE context length" , ContextLength)
+
+z = PointWiseListDifference( Input, Received)
 print( "Changes made by channel", sum(z))
-z = PointWiseListDifference( a, c)
+z = PointWiseListDifference( Input, Corrected)
 print( "Difference between actual and corrected sequence", sum( z ) )
-z = PointWiseListDifference( b, c)
+z = PointWiseListDifference( Received, Corrected)
 print( "Difference between received and corrected sequence",sum( z ) )
+print( "Correct changes Made by the right context", OutputTest.CorrectedByContext)
+print( "Number of spoils by the right context", OutputTest.SpoiltByContext)
+print( "Number of spoils by the wrong context", OutputTest.SpolitByWrongContext)
