@@ -298,7 +298,7 @@ class DUDEOutputSequence( OutputSequence ):
         print( "In First pass")
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
             if i%(self.passlimit*10) == 0:
-                print( i, "   ",self.SequenceLength)
+                print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
             TWOkSequence = tuple( self.ReceivedSequence[ i - self.ContextLength : i + self.ContextLength + 1 ] )
             self.HashDictionary[ TWOkSequence ] = self.HashDictionary.get( TWOkSequence, 0) + 1
     
@@ -306,7 +306,7 @@ class DUDEOutputSequence( OutputSequence ):
         print( "In Second pass")
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
             if i%self.passlimit == 0:
-                print(i)
+                print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
             self.Sequence[ i ] = self.__getTrueSymbol( i )
 
     def __getTrueSymbol(self, positionI):
@@ -418,7 +418,7 @@ class DUDEOutputSequence( OutputSequence ):
         mT_Pi_inv = numpy.array( list( M.values() ) ).dot( self.InvTransitionMatrix )
         minPenalty = { "letter": None, "value": numpy.Infinity }
         print( "Transition Matrix", self.TransitionMatrix, "\n")
-        for letter in Alphabet:
+        for letter in Alphabet: 
             LossVector = MultiplyVectorsComponenetWise(
                                 self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],
                                 self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ z_i ] ]
