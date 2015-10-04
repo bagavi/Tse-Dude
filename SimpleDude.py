@@ -516,19 +516,19 @@ class System:
     
 # From terminal
 if len(sys.argv) > 1:
-    ContextLength = int( sys.argv[1] )
+    ContextLength = int( sys.argv[2] )
 else:
     ContextLength = 3
 
 if len( sys.argv )> 2 :
     flipProbab = float( sys.argv[2] )
 else:
-    flipProbab = 0.9
+    flipProbab = 0.1
 
 if len( sys.argv )> 3 :
-    SequenceLength = int( sys.argv[2] )
+    SequenceLength = int( sys.argv[3] )
 else:
-    SequenceLength = 1e5
+    SequenceLength = int( 1e5 )
 
 
 
