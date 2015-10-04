@@ -369,7 +369,7 @@ class DUDEOutputSequence( OutputSequence ):
             print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
             print( "Context = ", z_1to_K ," * ", z1toK)
        
-            self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [ self.InputSequence.Sequence[ positionI ], minPenalty[ "letter" ] ], z_i )
+            self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [ self.InputSequence.Sequence[ positionI ], minPenalty[ "letter" ], z_i  ])
             print("##################################################################################################")
             if os.name == "posix":  
                 Enter = str( input("Enter something!!") )
