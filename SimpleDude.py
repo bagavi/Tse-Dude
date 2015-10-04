@@ -8,9 +8,8 @@
 
 from abc import ABCMeta, abstractmethod
 from CommonFunctions import *
-import collections
+import collections, os, sys
 from collections import OrderedDict
-import os
 
 """
     Generic Sequence Class. Defines generic functions on sequences
@@ -471,10 +470,11 @@ class System:
     ChainWeight = [.4, .25 , .2 , .1 , .05]
     ContextLength = 3
     
-    def __init__(self, ContextLength = 3, MarkovSequenceLength = 10000, shouldIprint = False):
+    def __init__(self, ContextLength = 3, MarkovSequenceLength = 10000, flipProbab = .9, shouldIprint = False):
         self.ContextLength = ContextLength
         self.shouldIprint = shouldIprint
         self.MarkovSequenceLength = MarkovSequenceLength
+        self.p = flipProbab
         
     def printInformation(self):
         print( "Sequence Length for Markov (if applicable) ", self.MarkovSequenceLength)
@@ -511,7 +511,17 @@ class System:
         #Decoding the Sequence
         self.Output.DecodeSequence()
     
+# From terminal
+if len(sys.argv) > 1:
+    ContextLength = int( sys.argv[1] )
+else:
+    ContextLength = 1e5
 
-Obj = System( ContextLength= 4, MarkovSequenceLength= 10e6|, shouldIprint = True)
+if len( sys.argv )> 2 :
+    flipProbab = float( sys.argv[2] )
+else:
+    flipProbab = 0.9
+
+Obj = System( ContextLength = ContextLength, MarkovSequenceLength= int( 10e6 ), flipProbab = flipProbab, shouldIprint = True)
 Obj.main()
 Obj.printInformation()
