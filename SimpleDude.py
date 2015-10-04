@@ -397,8 +397,8 @@ class DUDEOutputSequence( OutputSequence ):
             Penalty = LossVector.dot(mT_Pi_inv)
             print( "Loss function matrix", self.LossFunctionMatrix, "\n")
             print( "Transition Matrix", self.TransitionMatrix, "\n")
-            print( "matrix", mT_Pi_inv)
-            print( "Letter, its loss function, Transition Column ", letter,  self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],  self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ letter ] ]
+            print( "LossVector", LossVector)
+            print( "Letter, its loss function, Transition Column ", letter,  self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],  self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ z_i ] ]
                                 )
             print( "Penalty", Penalty)
             if( minPenalty[ "value" ]  > Penalty):
@@ -435,9 +435,9 @@ q1 = .25
 q2 = .3
 q3 = .15
 if os.name == "posix":
-    MarkovSequenceLength = 100000*5
+    MarkovSequenceLength = 200000
 else:
-    MarkovSequenceLength = 100000*5
+    MarkovSequenceLength = 10000
 # MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':q1, 'G':q2, 'T':q2, 'C':q3} ),
 #                                       'G' : OrderedDict( {'A':q2, 'G':q1, 'T':q2, 'C':q3} ),
 #                                       'T' : OrderedDict( {'A':q3, 'G':q2, 'T':q1, 'C':q2} ),
