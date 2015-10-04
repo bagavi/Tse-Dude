@@ -265,6 +265,15 @@ class DUDEOutputSequence( OutputSequence ):
         self.__AddBoundaryLength()
         return( self.Sequence )
     
+    def __AddBoundaryLength(self):
+        self.Sequence = self.ReceivedSequence[: self.ContextLength ] + self.Sequence[ self.ContextLength : len(self.ReceivedSequence) - self.ContextLength ] + self.ReceivedSequence [ len(self.ReceivedSequence) - self.ContextLength: ]
+    
+    def __IncreamentDictElement(self, key ):
+        self.HashDictionary[ key  ] = self.HashDictionary.get(key, 0) + 1
+        
+    def __getDictProbabilites(self, key ):
+        return( self.HashDictionary.get( tuple(key), 0) )
+    
     # Calculates m( z^n, z_{i-1}^{i-k}, z_{i+1}^{i+k} ] [z_i ]
     def __FirstPass(self):
         print( "In First pass")
@@ -360,7 +369,7 @@ class DUDEOutputSequence( OutputSequence ):
             print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
             print( "Context = ", z_1to_K ," * ", z1toK)
        
-            self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [  self.InputSequence.Sequence[ positionI ], minPenalty[ "letter" ] ] )
+            self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [ self.InputSequence.Sequence[ positionI ], minPenalty[ "letter" ] ], z_i )
             print("##################################################################################################")
             if os.name == "posix":  
                 Enter = str( input("Enter something!!") )
@@ -369,17 +378,9 @@ class DUDEOutputSequence( OutputSequence ):
         #debugging tool END
         return( minPenalty[ "letter" ] )
     
-    def __AddBoundaryLength(self):
-        self.Sequence = self.ReceivedSequence[: self.ContextLength ] + self.Sequence[ self.ContextLength : len(self.ReceivedSequence) - self.ContextLength ] + self.ReceivedSequence [ len(self.ReceivedSequence) - self.ContextLength: ]
-    
-    def __IncreamentDictElement(self, key ):
-        self.HashDictionary[ key  ] = self.HashDictionary.get(key, 0) + 1
-        
-    def __getDictProbabilites(self, key ):
-        return( self.HashDictionary.get( tuple(key), 0) )
     
     #Debuggin Tool
-    def __printDictionaryValues(self, pre, z_i,post, Alphabet ):
+    def __printDictionaryValues(self, pre, z_i, post, Alphabet ):
         M = {}
         for letter in self.Alphabet:
             # Fraction of context with z_1to_K + letter + z1toK
@@ -462,6 +463,7 @@ print( "DUDE context length" , ContextLength)
 
 #Calling the functions
 InputTest = MarkovModelSequence( Alphabet, MarkovSequenceLength, MarkovTransitionDictionary, ChainWeight)
+print( "Partial Input Sequence", InputTest.getSequence() [ : 500])
 ChannelTest = DiscreteMemoryChannel( InputTest, TransitionDictionary )
 OutputTest = DUDEOutputSequence( ChannelTest, LossFunction, InputTest , ContextLength = ContextLength)
 OutputTest.DecodeSequence()
