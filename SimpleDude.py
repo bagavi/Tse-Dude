@@ -115,6 +115,29 @@ class IIDInputSequence( InputSequence ):
         for symbolT in range( self.SequenceLength ):
             self.Sequence[ symbolT ] = SampleDistributionFromCdf( Cdf_AlphabetPriors, self.Alphabet )
 
+class ReadInputFromFile( InputSequence ):
+    
+    filename = ""
+    
+    def __init__(self, filename):
+        self.filename = filename
+        self.Sequence = []
+        self.GenerateSequence()
+
+    def GenerateSequence(self):
+        fileObject = open( self.filename, mode = 'r')
+        numberOflinestoskip = 1 # the first line is description
+        for line in fileObject:
+            if numberOflinestoskip !=0:
+                numberOflinestoskip -= 1
+                continue
+            if line[0] == '>':
+                continue
+            self.Sequence += list( line[:-1] ) # -1 because the last character is '\n'
+        self.Sequence[ self.Sequence.index('R', )] = 'A' #VERY VERY BAD CODE
+        self.Alphabet = list( set( self.Sequence ) )
+
+
 class MarkovModelSequence( InputSequence ):
     
     TransitionDictionary = OrderedDict()
@@ -504,8 +527,8 @@ class System:
     def main(self):
         #Calling the functions
         # Creating a MarkovModel Input Sequence
-        self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
-        
+        #self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
+        self.Input = ReadInputFromFile( "../genome.fasta" )
         # Creating the channel class
         Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
         # Creating the output class
@@ -516,21 +539,21 @@ class System:
     
 StartTime = time.time()
 # From terminal
-if len(sys.argv) > 1:
-    ContextLength = int( sys.argv[1] )
-else:
-    ContextLength = 3
 
-if len( sys.argv )> 2 :
-    flipProbab = float( sys.argv[2] )
+if len( sys.argv )> 1 :
+    flipProbab = float( sys.argv[1] )
 else:
     flipProbab = 0.1
 
-if len( sys.argv )> 3 :
-    SequenceLength = int( float( sys.argv[3] ) )
+if len( sys.argv )> 2 :
+    SequenceLength = int( float( sys.argv[2] ) )
 else:
     SequenceLength = int( 1e3 )
 
+if len( sys.argv )> 3:
+    ContextLength = int( sys.argv[3] )
+else:
+    ContextLength = 3
 
 
 Obj = System( ContextLength = ContextLength, MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
