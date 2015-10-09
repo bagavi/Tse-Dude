@@ -516,10 +516,10 @@ class System:
         print( "Fraction of changed symbols (w.r.t no of errors)", float( sum( z3 ) )/float( sum( z1 ) ))
         print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) ))
         fractionOfChanges = float( sum( z3 ) )/float( sum( z1 ) )
-        fractionOfChanges = float("{0:.2f}".format( fractionOfChanges ) )
+        fractionOfChanges = float("{0:.3f}".format( fractionOfChanges ) )
         Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes"] 
         RowstoWrite =  [ Heading ]  
-        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, float("{0:.2f}".format( self.Output.CorrectedByContext/float( sum( z1 ) ) ) ) ]]
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) ) ) ) ]]
         
         Filename = "Results_"+os.name+".csv"
         try:
