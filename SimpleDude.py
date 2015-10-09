@@ -8,7 +8,7 @@
 
 from abc import ABCMeta, abstractmethod
 from CommonFunctions import *
-import collections, os, sys, time
+import collections, os, sys, time, csv
 from collections import OrderedDict
 
 """
@@ -485,8 +485,9 @@ class System:
     ChainWeight = [1]
     ContextLength = 3
     
-    def __init__(self, ContextLength = 3, MarkovSequenceLength = 10000, flipProbab = .9, shouldIprint = False):
-        self.ContextLength = ContextLength
+    def __init__(self, ContextLengthMin = 3, ContextLengthMax = 7, MarkovSequenceLength = 10000, flipProbab = .9, shouldIprint = False):
+        self.ContextLengthMin = ContextLengthMin
+        self.ContextLengthMax = ContextLengthMax
         self.shouldIprint = shouldIprint
         self.MarkovSequenceLength = MarkovSequenceLength
         self.p = flipProbab
@@ -500,6 +501,8 @@ class System:
         self.Alphabet =  list( self.TransitionDictionary.keys() )
                 
     def printInformation(self):
+
+        
         print( "Sequence Length for Markov (if applicable) ", self.MarkovSequenceLength)
         print( "Flip probability of DMC ", self.p)
         print( "Dude Loss dictionary", self.LossFunction)
@@ -522,7 +525,25 @@ class System:
         print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
         print( "Fraction of changed symbols (w.r.t no of errors)", float( sum( z3 ) )/float( sum( z1 ) ))
         print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) ))
-
+        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes"] 
+        RowstoWrite =  [ Heading ]  
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, sum(z1), sum(z3), self.Output.CorrectedByContext,float( sum( z3 ) )/float( sum( z1 ) ), self.Output.CorrectedByContext/float( sum( z1 ) ) ]]
+        
+        try:
+            # copying data from the exiting file
+            with open('Result.csv', 'r') as f:
+                reader = csv.reader(f) # pass the file to our csv reader
+                for row in reader:     # iterate over the rows in the file
+                    if ( len(row) == 0 or row[0] == "InputSequence Length" ):
+                        continue
+                    RowstoWrite.append(row)
+        except:
+            print( "Creating Result.csv")
+        #f.close()
+        #Writing all the data
+        with open('Result.csv', 'w') as g:                                    
+            writer = csv.writer(g)                                                       
+            writer.writerows(RowstoWrite)
     def main(self):
         #Calling the functions
         # Creating a MarkovModel Input Sequence
@@ -531,11 +552,14 @@ class System:
         # Creating the channel class
         Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
         # Creating the output class
-        self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input , ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+        for i in range( self.ContextLengthMin, self.ContextLengthMax ):
+
+            self.ContextLength = i
+            self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+            #Decoding the Sequence
+            self.Output.DecodeSequence()
+            self.printInformation()
         
-        #Decoding the Sequence
-        self.Output.DecodeSequence()
-    
 StartTime = time.time()
 # From terminal
 
@@ -547,15 +571,20 @@ else:
 if len( sys.argv )> 2 :
     SequenceLength = int( float( sys.argv[2] ) )
 else:
-    SequenceLength = int( 1e5 )
+    SequenceLength = int( 1e3 )
+
+if len( sys.argv )> 4:
+    ContextLengthMin = int( sys.argv[3] )
+else:
+    ContextLengthMin = 3
+
 
 if len( sys.argv )> 3:
-    ContextLength = int( sys.argv[3] )
+    ContextLengthMax = int( sys.argv[3] )
 else:
-    ContextLength = 6
+    ContextLengthMax = 4
 
 
-Obj = System( ContextLength = ContextLength, MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
+Obj = System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax , MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
 Obj.main()
-Obj.printInformation()
 print( "total execution time", time.time() - StartTime)
