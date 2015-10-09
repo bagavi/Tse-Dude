@@ -474,15 +474,15 @@ class System:
     # Input Sequence Length
     MarkovSequenceLength = 0
     
-    r1 = .6
-    r2 = .4
-    r3 = 0
+    r1 = 0.9
+    r2 = 0.0
+    r3 = 0.0
     MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r3, 'C':r3} ),
                                           'G' : OrderedDict( {'A':r3, 'G':r1, 'T':r2, 'C':r3} ),
                                           'T' : OrderedDict( {'A':r3, 'G':r3, 'T':r1, 'C':r2} ),
                                         'C' : OrderedDict( {'A':r2, 'G':r3, 'T':r3, 'C':r1} )
                                         } )
-    ChainWeight = [.4, .25 , .2 , .1 , .05]
+    ChainWeight = [1]
     ContextLength = 3
     
     def __init__(self, ContextLength = 3, MarkovSequenceLength = 10000, flipProbab = .9, shouldIprint = False):
@@ -527,8 +527,8 @@ class System:
     def main(self):
         #Calling the functions
         # Creating a MarkovModel Input Sequence
-        #self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
-        self.Input = ReadInputFromFile( "../genome.fasta" )
+        self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
+        #self.Input = ReadInputFromFile( "../genome.fasta" )
         # Creating the channel class
         Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
         # Creating the output class
