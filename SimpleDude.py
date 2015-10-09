@@ -473,15 +473,6 @@ class System:
                 })
     # Input Sequence Length
     MarkovSequenceLength = 0
-    
-    r1 = 0.9
-    r2 = 0.1
-    r3 = 0.0
-    MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r3, 'C':r3} ),
-                                          'G' : OrderedDict( {'A':r3, 'G':r1, 'T':r2, 'C':r3} ),
-                                          'T' : OrderedDict( {'A':r3, 'G':r3, 'T':r1, 'C':r2} ),
-                                        'C' : OrderedDict( {'A':r2, 'G':r3, 'T':r3, 'C':r1} )
-                                        } )
     ChainWeight = [1]
     ContextLength = 3
     
@@ -502,8 +493,7 @@ class System:
                 
     def printInformation(self):
 
-        
-        print( "Sequence Length for Markov (if applicable) ", self.MarkovSequenceLength)
+        print( "Instance Number", self.NumberOfInstances)
         print( "Flip probability of DMC ", self.p)
         print( "Dude Loss dictionary", self.LossFunction)
         print( "DUDE context length" , self.ContextLength)
@@ -527,7 +517,7 @@ class System:
         print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) ))
         Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes"] 
         RowstoWrite =  [ Heading ]  
-        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, self.r2, sum(z1), sum(z3), self.Output.CorrectedByContext,float( sum( z3 ) )/float( sum( z1 ) ), self.Output.CorrectedByContext/float( sum( z1 ) ) ]]
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, self.r1, sum(z1), sum(z3), self.Output.CorrectedByContext,float( sum( z3 ) )/float( sum( z1 ) ), self.Output.CorrectedByContext/float( sum( z1 ) ) ]]
         
         Filename = "Results_"+os.name+".csv"
         try:
@@ -547,20 +537,33 @@ class System:
             writer.writerows(RowstoWrite)
         f.close()
     def main(self):
+        
+        self.NumberOfInstances = 0
         #Calling the functions
-        # Creating a MarkovModel Input Sequence
-        self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
-        #self.Input = ReadInputFromFile( "../genome.fasta" )
-        # Creating the channel class
-        Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
-        # Creating the output class
-        for i in range( self.ContextLengthMin, self.ContextLengthMax ):
+        # Creating a MarkovModel Input Sequence        
+        #Looping Over Markov Transition Probabilities
+        for markovTransitionProbab in numpy.arange(0.1,1,.5):
+            self.r1 = markovTransitionProbab
+            r2 = (1 - self.r1)/3
+            r1 = self.r1
+            self.MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r2, 'C':r2} ),
+                                                  'G' : OrderedDict( {'A':r2, 'G':r1, 'T':r2, 'C':r2} ),
+                                                  'T' : OrderedDict( {'A':r2, 'G':r2, 'T':r1, 'C':r2} ),
+                                                'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
+                                                } )
+            #
+            self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
+            # Creating the channel class
+            Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
 
-            self.ContextLength = i
-            self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
-            #Decoding the Sequence
-            self.Output.DecodeSequence()
-            self.printInformation()
+            for i in range( self.ContextLengthMin, self.ContextLengthMax ):
+                self.NumberOfInstances += 1
+                self.ContextLength = i
+                # Creating the output class
+                self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+                #Decoding the Sequence
+                self.Output.DecodeSequence()
+                self.printInformation()
         
 StartTime = time.time()
 # From terminal
@@ -585,6 +588,9 @@ if len( sys.argv )> 4:
     ContextLengthMax = int( sys.argv[4] )
 else:
     ContextLengthMax = 6
+
+
+
 
 
 Obj = System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax , MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
