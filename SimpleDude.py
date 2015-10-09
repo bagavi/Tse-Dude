@@ -525,9 +525,9 @@ class System:
         print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
         print( "Fraction of changed symbols (w.r.t no of errors)", float( sum( z3 ) )/float( sum( z1 ) ))
         print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) ))
-        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes"] 
+        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes"] 
         RowstoWrite =  [ Heading ]  
-        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, sum(z1), sum(z3), self.Output.CorrectedByContext,float( sum( z3 ) )/float( sum( z1 ) ), self.Output.CorrectedByContext/float( sum( z1 ) ) ]]
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, self.r2, sum(z1), sum(z3), self.Output.CorrectedByContext,float( sum( z3 ) )/float( sum( z1 ) ), self.Output.CorrectedByContext/float( sum( z1 ) ) ]]
         
         Filename = "Results_"+os.name+".csv"
         try:
@@ -542,9 +542,10 @@ class System:
             print( "Creating Result.csv")
         #f.close()
         #Writing all the data
-        with open( Filename, 'w') as g:                                    
-            writer = csv.writer(g)                                                       
+        with open( Filename, 'w') as f:                                    
+            writer = csv.writer(f)                                                       
             writer.writerows(RowstoWrite)
+        f.close()
     def main(self):
         #Calling the functions
         # Creating a MarkovModel Input Sequence
@@ -583,7 +584,7 @@ else:
 if len( sys.argv )> 4:
     ContextLengthMax = int( sys.argv[4] )
 else:
-    ContextLengthMax = 4
+    ContextLengthMax = 6
 
 
 Obj = System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax , MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
