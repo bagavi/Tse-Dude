@@ -475,7 +475,7 @@ class System:
     MarkovSequenceLength = 0
     
     r1 = 0.9
-    r2 = 0.0
+    r2 = 0.1
     r3 = 0.0
     MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r3, 'C':r3} ),
                                           'G' : OrderedDict( {'A':r3, 'G':r1, 'T':r2, 'C':r3} ),
@@ -520,9 +520,8 @@ class System:
         print( "Correct changes Made by the right context", self.Output.CorrectedByContext)
         print( "Number of spoils by the right context", self.Output.SpoiltByContext)
         print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
-        print( "Percentage of errors still remaining", sum( z2 )*100/self.MarkovSequenceLength)
-        print( "Fraction of symbols edited by DUDE", sum( z3 )*100/self.MarkovSequenceLength)
-        
+        print( "Fraction of changed symbols (w.r.t no of errors)", float( sum( z3 ) )/float( sum( z1 ) ))
+        print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) ))
 
     def main(self):
         #Calling the functions
@@ -543,17 +542,17 @@ StartTime = time.time()
 if len( sys.argv )> 1 :
     flipProbab = float( sys.argv[1] )
 else:
-    flipProbab = 0.1
+    flipProbab = 0.01
 
 if len( sys.argv )> 2 :
     SequenceLength = int( float( sys.argv[2] ) )
 else:
-    SequenceLength = int( 1e3 )
+    SequenceLength = int( 1e5 )
 
 if len( sys.argv )> 3:
     ContextLength = int( sys.argv[3] )
 else:
-    ContextLength = 3
+    ContextLength = 6
 
 
 Obj = System( ContextLength = ContextLength, MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
