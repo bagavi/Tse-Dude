@@ -529,9 +529,10 @@ class System:
         RowstoWrite =  [ Heading ]  
         RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, sum(z1), sum(z3), self.Output.CorrectedByContext,float( sum( z3 ) )/float( sum( z1 ) ), self.Output.CorrectedByContext/float( sum( z1 ) ) ]]
         
+        Filename = "Results_"+os.name+".csv"
         try:
             # copying data from the exiting file
-            with open('Result.csv', 'r') as f:
+            with open(Filename, 'r') as f:
                 reader = csv.reader(f) # pass the file to our csv reader
                 for row in reader:     # iterate over the rows in the file
                     if ( len(row) == 0 or row[0] == "InputSequence Length" ):
@@ -541,7 +542,7 @@ class System:
             print( "Creating Result.csv")
         #f.close()
         #Writing all the data
-        with open('Result.csv', 'w') as g:                                    
+        with open( Filename, 'w') as g:                                    
             writer = csv.writer(g)                                                       
             writer.writerows(RowstoWrite)
     def main(self):
