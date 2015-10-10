@@ -1,5 +1,5 @@
 import random
-import numpy
+import numpy, csv
 
 def CdfFromPdf( Pdf ):
     Cdf = [ Pdf[0] ]
@@ -42,5 +42,10 @@ def PointWiseListDifference( List1, List2):
 
 def CheckProbabilitiesSumtoOne( Array ):
     for i in Array:
-        if( sum(i) != 1 ):
+        if( abs( sum(i) -  1 ) > .01 ):
             print( "Probabilites not summing to one!")
+            
+def WriteArrayinFile( Array, Filename ):
+    with open( Filename, 'w') as f:                                    
+            writer = csv.writer(f)                                                       
+            writer.writerows(Array)
