@@ -544,7 +544,7 @@ class System:
         #Calling the functions
         # Creating a MarkovModel Input Sequence        
         #Looping Over Markov Transition Probabilities
-        for markovTransitionProbab in numpy.arange(0.1,1,.1):
+        for markovTransitionProbab in numpy.arange(0.1,1,.01):
             self.r1 = markovTransitionProbab
             r2 = (1 - self.r1)/3
             r1 = self.r1
