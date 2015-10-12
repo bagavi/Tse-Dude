@@ -130,7 +130,7 @@ class ReadFromReads( InputSequence ):
         handle = open(self.filename)
         i = 0
         for seq_record in SeqIO.parse( handle, "fastq") :
-            if 'N' not in list( seq_record.seq ):
+            if 'N' in list( seq_record.seq ):
                 continue
             if( i  == self.NoOfReads ):
                 break

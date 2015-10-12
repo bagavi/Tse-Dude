@@ -22,7 +22,6 @@ if len( sys.argv )> 4:
 else:
     NoOfReads = 1000
 
-
 shouldIprint =  lambda x, y: not( x in y )
 shouldIprint =  lambda x, y: True
 Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
