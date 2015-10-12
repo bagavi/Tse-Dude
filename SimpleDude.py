@@ -645,10 +645,9 @@ class System:
             Ratios += [ numpy.std( Dict[i]) ]
         Ratios.sort()
         Ratios = Ratios[::-1]
-        print( Ratios )
         print( "FEW STATS")
         aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-10))
-        print( "Length", len(Ratios))
         print( Ratios[ 0: aa ])
+        print( "Length", aa/len(Ratios))
         Enter = input("ENTER SOMETHING")
         print( Ratios)
