@@ -655,4 +655,3 @@ class System:
         aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-5))
 #        print( Ratios[ 0: aa ])
         print(  "Good std till 13", aa,"Length",len(Ratios))        
-        Enter = input("ENTER SOMETHING")
