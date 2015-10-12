@@ -642,10 +642,11 @@ class System:
     def AnalyzeContextGroupInfo(self, Dict ):
         Ratios = []
         for i in Dict:
-            Ratios += [ numpy.var( Dict[i]) ]
+            Ratios += [ numpy.std( Dict[i]) ]
         Ratios.sort()
         Ratios = Ratios[::-1]
         print( Ratios )
         print( "FEW STATS")
         print( Ratios[ 0: len(Ratios)/10 ])
+        Enter = input("ENTER SOMETHING")
         print( Ratios)
