@@ -429,8 +429,9 @@ class DUDEOutputSequence( OutputSequence ):
             else:
                 print("%%%%%%%%%%%%%%%%%%%%%%%%%% Wrong Context and Spoilt %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             print("##################################################################################################")
-            #Enter = input("Test")
-               
+            if os.name == "posix":  
+                 Enter = str( input("Enter something!!") )               
+
         elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
             print("##################################################################################################")
             print( "!!!!!!!!!!, the algorithm did the right thing ", z_i, "to ", minPenalty[ "letter" ] )
@@ -442,6 +443,9 @@ class DUDEOutputSequence( OutputSequence ):
                 print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
             print("##################################################################################################")
             print("%%%%%%%%%%%%%%%%%%%%%%%%%% Corrected %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            if os.name == "posix":  
+                 Enter = str( input("Enter something!!") )               
+
 #         elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint  and 
 #                 self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
 #                 self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK ):
