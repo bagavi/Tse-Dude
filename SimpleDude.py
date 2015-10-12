@@ -644,19 +644,17 @@ class System:
         for i in Dict:
             Dict[i] = [x / min(Dict[i]) for x in Dict[i]]
             std = numpy.std( Dict[i])
-            if( std > 10 ):
+            if( std > 4 ):
                 print(Dict[i], std)
                 Enter = input("ENTER SOMETHING")
             Ratios += [ numpy.std( Dict[i]) ]
         Ratios.sort()
         Ratios = Ratios[::-1]
         print( "FEW STATS")
-        aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-10))
+        aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-2))
         print(  "Good std til 10", aa,"Length",len(Ratios))
     
-        aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-13))
+        aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-5))
         print( Ratios[ 0: aa ])
-        print(  "Good std till 13", aa,"Length",len(Ratios))
-        
+        print(  "Good std till 13", aa,"Length",len(Ratios))        
         Enter = input("ENTER SOMETHING")
-        print( Ratios)
