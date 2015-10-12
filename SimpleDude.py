@@ -642,12 +642,15 @@ class System:
     def AnalyzeContextGroupInfo(self, Dict ):
         Ratios = []
         for i in Dict:
+            std = numpy.std( Dict[i])
+            if( std > 10 ):
+                print(Dict[i])
+                Enter = input("ENTER SOMETHING")
             Ratios += [ numpy.std( Dict[i]) ]
         Ratios.sort()
         Ratios = Ratios[::-1]
         print( "FEW STATS")
         aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-10))
-        print( Ratios[ 0: aa ])
         print(  "Good std til 10", aa,"Length",len(Ratios))
     
         aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-13))
