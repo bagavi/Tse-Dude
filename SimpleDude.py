@@ -487,7 +487,7 @@ class System:
                                 } )
         self.Alphabet =  list( self.TransitionDictionary.keys() )
                 
-    def printInformation(self):
+    def printInformation(self, Filename = 'Results_'+os.name+'.csv'):
 
         print( "Instance Number", self.NumberOfInstances)
         print( "Flip probability of DMC ", self.p)
@@ -517,7 +517,6 @@ class System:
         RowstoWrite =  [ Heading ]  
         RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) ) ) ) ]]
         
-        Filename = "Results_"+os.name+".csv"
         try:
             # copying data from the exiting file
             with open(Filename, 'r') as f:
@@ -564,7 +563,7 @@ class System:
                 self.Output.DecodeSequence()
                 self.printInformation()
                 
-    def mainRealData(self, filename):
+    def mainRealData(self, filename, printResultFile):
         
         self.NumberOfInstances = 0
         self.r1 = -1 #Bad code
@@ -581,4 +580,4 @@ class System:
             self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
             #Decoding the Sequence
             self.Output.DecodeSequence()
-            self.printInformation()
+            self.printInformation(printResultFile)
