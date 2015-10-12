@@ -10,7 +10,7 @@ else:
 if len( sys.argv )> 2:
     ContextLengthMin = int( sys.argv[2] )
 else:
-    ContextLengthMin = 3
+    ContextLengthMin = 2
 
 if len( sys.argv )> 3:
     ContextLengthMax = int( sys.argv[3] )
@@ -20,10 +20,12 @@ else:
 if len( sys.argv )> 4:
     NoOfReads = int( sys.argv[4] )
 else:
-    NoOfReads = 10000
+    NoOfReads = 1000
 
 
-
-Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = False)
-Obj.ReadData('../original/genome.fasta', NoOfReads,'Results_reads.csv')
+shouldIprint =  lambda x, y: not( x in y )
+shouldIprint =  lambda x, y: True
+Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
+Obj.ReadData('../original/frag.fastq', NoOfReads,'Results_reads.csv')
 print( "total execution time", time.time() - StartTime)
+

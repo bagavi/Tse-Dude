@@ -116,6 +116,27 @@ class IIDInputSequence( InputSequence ):
         for symbolT in range( self.SequenceLength ):
             self.Sequence[ symbolT ] = SampleDistributionFromCdf( Cdf_AlphabetPriors, self.Alphabet )
 
+class ReadFromReads( InputSequence ):
+    filename = ""
+    
+    def __init__(self, filename, NoOfReads):
+        self.filename = filename
+        self.Sequence = []
+        self.NoOfReads = NoOfReads
+        self.GenerateSequence()
+        self.Alphabet = [ 'A', 'C', 'T', 'G']
+        
+    def GenerateSequence(self):
+        handle = open(self.filename)
+        i = 0
+        for seq_record in SeqIO.parse( handle, "fastq") :
+            if 'N' not in list( seq_record.seq ):
+                continue
+            if( i  == self.NoOfReads ):
+                break
+            i += 1
+            self.Sequence += list(seq_record.seq)
+        
 class ReadInputFromFile( InputSequence ):
     
     filename = ""
@@ -231,13 +252,15 @@ class DiscreteMemoryChannel( Channel ):
             #print ( symbolT, index, "\n")
             if index%50000 == 0:
                 print( index )
-            
-            TransitionProbabilities = tuple( self.TransitionDictionary[symbolT].values() )
-            #print( TransitionProbabilities )
-            indexSymbol = SampleDistributionFromPdf( TransitionProbabilities, 
-                                                                tuple( self.TransitionDictionary[ symbolT ].keys() ) 
-                                                                 )
-            OutputSequence.append( indexSymbol )
+            if symbolT in self.InputSequence.Alphabet:
+                TransitionProbabilities = tuple( self.TransitionDictionary[symbolT].values() )
+                #print( TransitionProbabilities )
+                indexSymbol = SampleDistributionFromPdf( TransitionProbabilities, 
+                                                                    tuple( self.TransitionDictionary[ symbolT ].keys() ) 
+                                                                     )
+                OutputSequence.append( indexSymbol )
+            else:
+                OutputSequence.append( symbolT )
         self.OutputSequence = OutputSequence
         
     def getTransitionDict(self ):
@@ -330,8 +353,12 @@ class DUDEOutputSequence( OutputSequence ):
 
     def __getTrueSymbol(self, positionI):
         
-        # Initializing pre and post context sequence variables
+        
         z_i = self.ReceivedSequence[ positionI ]
+        if z_i not in self.Alphabet:
+            pass
+        #If the alphabet is not among ACGT, we dont "correct" it
+        # Initializing pre and post context sequence variables
         z_1to_K = self.ReceivedSequence[ positionI - self.ContextLength  : positionI  ]
         z1toK = self.ReceivedSequence[ positionI + 1 : positionI + self.ContextLength + 1 ]
         
@@ -346,9 +373,13 @@ class DUDEOutputSequence( OutputSequence ):
         mT_Pi_inv = numpy.array( list( M.values() ) ).dot( self.InvTransitionMatrix )
         minPenalty = { "letter": None, "value": numpy.Infinity }
         for letter in self.Alphabet:
+            if z_i in self.Alphabet:
+                lambda_zi = self.TransitionMatrix[:, self.TransitionDictionaryKeyMap[ z_i ] ]
+            else:
+                lambda_zi = numpy.array( [ 1, 1, 1, 1])
             LossVector = MultiplyVectorsComponenetWise(
                                 self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],
-                                self.TransitionMatrix[: ,self.TransitionDictionaryKeyMap[ z_i ] ]
+                                lambda_zi
                             )
             # mT_Pi_inv is P(Xt/ z^{n/t}
             Penalty = LossVector.dot(mT_Pi_inv)
@@ -368,7 +399,7 @@ class DUDEOutputSequence( OutputSequence ):
         elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
             self.CorrectedByContext += 1
     
-        if( self.shouldIprint ):
+        if( self.shouldIprint(z_i, self.Alphabet) ):
             self.__debuggingSection(z_i, z_1to_K, z1toK, positionI, minPenalty, M)
         #debugging tool END
         return( minPenalty[ "letter" ] )
@@ -570,6 +601,25 @@ class System:
         #Calling the functions
 
         self.Input = ReadInputFromFile(filename)
+        # Creating the channel class
+        Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+
+        for i in range( self.ContextLengthMin, self.ContextLengthMax ):
+            self.NumberOfInstances += 1 
+            self.ContextLength = i
+            # Creating the output class
+            self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+            #Decoding the Sequence
+            self.Output.DecodeSequence()
+            self.printInformation(printResultFile)
+
+    def ReadData(self, filename, NoOfReads, printResultFile = "Results_Read_"+os.name+".csv"):
+        
+        self.NumberOfInstances = 0
+        self.r1 = -1 #Bad code
+        #Calling the functions
+
+        self.Input = ReadFromReads(filename, NoOfReads)
         # Creating the channel class
         Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
 

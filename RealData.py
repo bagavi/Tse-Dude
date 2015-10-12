@@ -19,9 +19,9 @@ else:
     ContextLengthMax = 10
 
 
+shouldIprint =  lambda x, y: False
 
 
-
-Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = False)
+Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
 Obj.mainRealData('../original/genome.fasta', 'Results_dna.csv')
 print( "total execution time", time.time() - StartTime)
