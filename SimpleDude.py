@@ -8,8 +8,9 @@
 
 from abc import ABCMeta, abstractmethod
 from CommonFunctions import *
-import collections, os, sys, time, csv
+import collections, os, sys, time, csv, Bio
 from collections import OrderedDict
+from Bio import SeqIO, Seq
 
 """
     Generic Sequence Class. Defines generic functions on sequences
@@ -125,16 +126,10 @@ class ReadInputFromFile( InputSequence ):
         self.GenerateSequence()
 
     def GenerateSequence(self):
-        fileObject = open( self.filename, mode = 'r')
-        numberOflinestoskip = 1 # the first line is description
-        for line in fileObject:
-            if numberOflinestoskip !=0:
-                numberOflinestoskip -= 1
-                continue
-            if line[0] == '>':
-                continue
-            self.Sequence += list( line[:-1] ) # -1 because the last character is '\n'
-        self.Sequence[ self.Sequence.index('R', )] = 'A' #VERY VERY BAD CODE
+        handle = open(self.filename)
+        for seq_record in SeqIO.parse( handle, "fasta"):
+            print( seq_record.id )
+            self.Sequence += str(seq_record.seq)
         self.Alphabet = list( set( self.Sequence ) )
 
 
@@ -236,6 +231,7 @@ class DiscreteMemoryChannel( Channel ):
             #print ( symbolT, index, "\n")
             if index%5000 == 0:
                 print( index )
+            
             TransitionProbabilities = tuple( self.TransitionDictionary[symbolT].values() )
             #print( TransitionProbabilities )
             indexSymbol = SampleDistributionFromPdf( TransitionProbabilities, 
