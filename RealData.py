@@ -23,5 +23,5 @@ else:
 
 
 Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = False)
-Obj.mainRealData('..\original\genome_data.fasta')
+Obj.mainRealData('../original/genome.fasta')
 print( "total execution time", time.time() - StartTime)
