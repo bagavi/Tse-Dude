@@ -617,6 +617,8 @@ class System:
             self.Output.DecodeSequence()
             groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
             self.printInformation(printResultFile)
+            self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
+            self.AnalyzeContextGroupInfo( self.GroupInfo )
 
     def ReadData(self, filename, NoOfReads, printResultFile = "Results_Read_"+os.name+".csv"):
         
@@ -643,9 +645,6 @@ class System:
         Ratios = []
         for i in Dict:
             Dict[i] = [x / min(Dict[i]) for x in Dict[i]]
-            std = numpy.std( Dict[i])
-            if( std > 4 ):
-                print(Dict[i], std)
             Ratios += [ numpy.std( Dict[i]) ]
         Ratios.sort()
         Ratios = Ratios[::-1]
@@ -654,6 +653,6 @@ class System:
         print(  "Good std til 10", aa,"Length",len(Ratios))
     
         aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-5))
-        print( Ratios[ 0: aa ])
+#        print( Ratios[ 0: aa ])
         print(  "Good std till 13", aa,"Length",len(Ratios))        
         Enter = input("ENTER SOMETHING")
