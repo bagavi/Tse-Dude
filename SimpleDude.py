@@ -647,6 +647,7 @@ class System:
         Ratios = Ratios[::-1]
         print( Ratios )
         print( "FEW STATS")
-        print( Ratios[ 0: len(Ratios)/10 ])
+        aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-10))
+        print( Ratios[ 0: aa ])
         Enter = input("ENTER SOMETHING")
         print( Ratios)
