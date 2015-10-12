@@ -642,9 +642,9 @@ class System:
     def AnalyzeContextGroupInfo(self, Dict ):
         Ratios = []
         for i in Dict:
+            Dict[i] = [x / min(Dict[i]) for x in Dict[i]]
             std = numpy.std( Dict[i])
             if( std > 10 ):
-                Dict[i] = Dict[i]/min(Dict[i])
                 print(Dict[i], std)
                 Enter = input("ENTER SOMETHING")
             Ratios += [ numpy.std( Dict[i]) ]
