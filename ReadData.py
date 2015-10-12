@@ -12,16 +12,18 @@ if len( sys.argv )> 2:
 else:
     ContextLengthMin = 3
 
-
 if len( sys.argv )> 3:
     ContextLengthMax = int( sys.argv[3] )
 else:
     ContextLengthMax = 10
 
-
+if len( sys.argv )> 4:
+    NoOfReads = int( sys.argv[4] )
+else:
+    NoOfReads = 10000
 
 
 
 Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = False)
-Obj.mainRealData('../original/genome.fasta', 'Results_dna.csv')
+Obj.ReadData('../original/genome.fasta', NoOfReads,'Results_reads.csv')
 print( "total execution time", time.time() - StartTime)
