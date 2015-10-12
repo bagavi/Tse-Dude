@@ -648,6 +648,6 @@ class System:
         print( "FEW STATS")
         aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-10))
         print( Ratios[ 0: aa ])
-        print( "Length", aa/len(Ratios))
+        print(  "Good std till", aa,"Length",len(Ratios))
         Enter = input("ENTER SOMETHING")
         print( Ratios)
