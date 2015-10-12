@@ -444,7 +444,7 @@ class DUDEOutputSequence( OutputSequence ):
             print("##################################################################################################")
             print("%%%%%%%%%%%%%%%%%%%%%%%%%% Corrected %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             if os.name == "posix":  
-                 Enter = str( input("Enter something!!") )               
+                 self.Enter = str( input("Enter something!!") )               
 
 #         elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint  and 
 #                 self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
@@ -615,6 +615,7 @@ class System:
             self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
             #Decoding the Sequence
             self.Output.DecodeSequence()
+            groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
             self.printInformation(printResultFile)
 
     def ReadData(self, filename, NoOfReads, printResultFile = "Results_Read_"+os.name+".csv"):
@@ -634,4 +635,13 @@ class System:
             self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
             #Decoding the Sequence
             self.Output.DecodeSequence()
+            self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
+            self.AnalyzeContextGroupInfo( self.GroupInfo)
             self.printInformation(printResultFile)
+    
+    def AnalyzeContextGroupInfo(self, Dict ):
+        Ratios = []
+        for i in Dict:
+            Ratios += [ numpy.var( Dict[i]) ]
+        Ratios.sort()[::-1]
+        print( Ratios[ -100: ])

@@ -20,10 +20,10 @@ else:
 if len( sys.argv )> 4:
     NoOfReads = int( sys.argv[4] )
 else:
-    NoOfReads = 1000
+    NoOfReads = 50
 
 shouldIprint =  lambda x, y: not( x in y )
-shouldIprint =  lambda x, y: True
+shouldIprint =  lambda x, y: False
 Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
 Obj.ReadData('../original/frag.fastq', NoOfReads,'Results_reads.csv')
 print( "total execution time", time.time() - StartTime)

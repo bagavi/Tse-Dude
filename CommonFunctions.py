@@ -1,5 +1,6 @@
 import random
 import numpy, csv
+from collections import OrderedDict
 
 def CdfFromPdf( Pdf ):
     Cdf = [ Pdf[0] ]
@@ -57,3 +58,12 @@ def FiletoArray( Filename = 'Results_posix.csv' ):
             Array += [ i ]
     
     return(Array[1:])
+
+def groupContexts( Dictionary, Alphabet ):
+    GroupDict = dict()
+    for context in Dictionary:
+        value = Dictionary[context]
+        ConLen = len(context)
+        GroupContext = list( context[: int( (ConLen-1)/2)] ) + [ '*' ] + list( context[ int( (ConLen+1)/2) :] )
+        GroupDict[ tuple( GroupContext ) ] = GroupDict.get( tuple( GroupContext ), [] ) + [value]
+    return(GroupDict)
