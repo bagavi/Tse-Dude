@@ -646,7 +646,6 @@ class System:
             std = numpy.std( Dict[i])
             if( std > 4 ):
                 print(Dict[i], std)
-                Enter = input("ENTER SOMETHING")
             Ratios += [ numpy.std( Dict[i]) ]
         Ratios.sort()
         Ratios = Ratios[::-1]
