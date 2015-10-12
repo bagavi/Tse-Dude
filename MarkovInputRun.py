@@ -10,7 +10,7 @@ else:
 if len( sys.argv )> 2 :
     flipProbab = float( sys.argv[2] )
 else:
-    flipProbab = 0.01
+    flipProbab = 0.05
 
 if len( sys.argv )> 3:
     ContextLengthMin = int( sys.argv[3] )
@@ -26,7 +26,8 @@ else:
 
 
 
+shouldIprint =  lambda x, y: False
 
-Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax , MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
+Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax , MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=shouldIprint)
 Obj.Markov()
 print( "total execution time", time.time() - StartTime)
