@@ -229,7 +229,7 @@ class DiscreteMemoryChannel( Channel ):
         #print( Sequence )
         for index, symbolT in enumerate( Sequence ):
             #print ( symbolT, index, "\n")
-            if index%5000 == 0:
+            if index%50000 == 0:
                 print( index )
             
             TransitionProbabilities = tuple( self.TransitionDictionary[symbolT].values() )
@@ -567,6 +567,7 @@ class System:
     def mainRealData(self, filename):
         
         self.NumberOfInstances = 0
+        self.r1 = -1 #Bad code
         #Calling the functions
 
         self.Input = ReadInputFromFile(filename)
