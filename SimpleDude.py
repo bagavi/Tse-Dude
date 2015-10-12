@@ -643,5 +643,9 @@ class System:
         Ratios = []
         for i in Dict:
             Ratios += [ numpy.var( Dict[i]) ]
-        Ratios.sort()[::-1]
-        print( Ratios[ -100: ])
+        Ratios.sort()
+        Ratios = Ratios[::-1]
+        print( Ratios )
+        print( "FEW STATS")
+        print( Ratios[ 0: len(Ratios)/10 ])
+        print( Ratios)
