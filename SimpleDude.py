@@ -644,7 +644,8 @@ class System:
         for i in Dict:
             std = numpy.std( Dict[i])
             if( std > 10 ):
-                print(Dict[i])
+                Dict[i] = Dict[i]/min(Dict[i])
+                print(Dict[i], std)
                 Enter = input("ENTER SOMETHING")
             Ratios += [ numpy.std( Dict[i]) ]
         Ratios.sort()
