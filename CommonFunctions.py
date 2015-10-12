@@ -49,3 +49,11 @@ def WriteArrayinFile( Array, Filename ):
     with open( Filename, 'w') as f:                                    
             writer = csv.writer(f)                                                       
             writer.writerows(Array)
+def FiletoArray( Filename = 'Results_posix.csv' ):
+    Array = []
+    with open(Filename, 'r') as f:
+        reader = csv.reader(f)
+        for i in reader:
+            Array += [ i ]
+    
+    return(Array[1:])

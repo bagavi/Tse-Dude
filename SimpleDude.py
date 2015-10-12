@@ -538,6 +538,7 @@ class System:
             writer = csv.writer(f)                                                       
             writer.writerows(RowstoWrite)
         f.close()
+        
     def main(self):
         
         self.NumberOfInstances = 0
@@ -566,35 +567,21 @@ class System:
                 #Decoding the Sequence
                 self.Output.DecodeSequence()
                 self.printInformation()
+                
+    def mainRealData(self, filename):
         
-StartTime = time.time()
-# From terminal
+        self.NumberOfInstances = 0
+        #Calling the functions
 
-if len( sys.argv )> 1 :
-    SequenceLength = int( float( sys.argv[1] ) )
-else:
-    SequenceLength = int( 1e3 )
+        self.Input = ReadInputFromFile(filename)
+        # Creating the channel class
+        Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
 
-if len( sys.argv )> 2 :
-    flipProbab = float( sys.argv[2] )
-else:
-    flipProbab = 0.01
-
-if len( sys.argv )> 3:
-    ContextLengthMin = int( sys.argv[3] )
-else:
-    ContextLengthMin = 3
-
-
-if len( sys.argv )> 4:
-    ContextLengthMax = int( sys.argv[4] )
-else:
-    ContextLengthMax = 6
-
-
-
-
-
-Obj = System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax , MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
-Obj.main()
-print( "total execution time", time.time() - StartTime)
+        for i in range( self.ContextLengthMin, self.ContextLengthMax ):
+            self.NumberOfInstances += 1 
+            self.ContextLength = i
+            # Creating the output class
+            self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+            #Decoding the Sequence
+            self.Output.DecodeSequence()
+            self.printInformation()
