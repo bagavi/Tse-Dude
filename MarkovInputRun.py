@@ -28,5 +28,5 @@ else:
 
 
 Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax , MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=False)
-Obj.main()
+Obj.Markov()
 print( "total execution time", time.time() - StartTime)

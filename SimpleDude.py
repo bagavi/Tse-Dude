@@ -130,7 +130,7 @@ class ReadFromReads( InputSequence ):
         handle = open(self.filename)
         i = 0
         for seq_record in SeqIO.parse( handle, "fastq") :
-            if 'N' in list( seq_record.seq ):
+            if 'N' in list( seq_record.seq ): # Ignoring the reads which have 'N'.
                 continue
             if( i  == self.NoOfReads ):
                 break
@@ -196,20 +196,20 @@ class MarkovModelSequence( InputSequence ):
             for j in range( len( self.ChainWeight ) ):
                 letter_i_minus_j = self.Sequence[ i - 1 -j ]
                 number_i_minus_j = self.AlphabetDictionaryKeyMap[ letter_i_minus_j ]
-                PMatrix += [ list( self.TransitionMatrix[ number_i_minus_j ] ) ]
+                PMatrix         += [ list( self.TransitionMatrix[ number_i_minus_j ] ) ]
             PMatrix = numpy.array( PMatrix )
             
-            ProbVector = self.ChainWeight.dot( PMatrix )
+            ProbVector   = self.ChainWeight.dot( PMatrix )
             RandomNumber = SampleDistributionFromPdf( ProbVector, range( len(self.Alphabet )))
             self.Sequence.append(self.ReverseAlphabetDictionaryKeyMap[ RandomNumber ])
         
 
 class BlockwiseIndependentSequence( InputSequence ):
     
-    BlockSize = 15
-    NumberofBlocks = 0
+    BlockSize            = 15
+    NumberofBlocks       = 0
     NumberofRandomBlocks = 2
-    Blocks = [ ]
+    Blocks               = []
     
     def __init__(self, Alphabet, NumberofBlocks ):
         InputSequence.__init__( self, Alphabet, self.BlockSize*NumberofBlocks, Null = 0 )
@@ -254,7 +254,6 @@ class DiscreteMemoryChannel( Channel ):
                 print( index )
             if symbolT in self.InputSequence.Alphabet:
                 TransitionProbabilities = tuple( self.TransitionDictionary[symbolT].values() )
-                #print( TransitionProbabilities )
                 indexSymbol = SampleDistributionFromPdf( TransitionProbabilities, 
                                                                     tuple( self.TransitionDictionary[ symbolT ].keys() ) 
                                                                      )
@@ -274,6 +273,7 @@ class DiscreteMemoryChannel( Channel ):
 
     def getOutputAlphabet(self):
         return self.InputSequence.Alphabet
+
 """
     Implements DUDE on DMC
 """
@@ -296,7 +296,7 @@ class DUDEOutputSequence( OutputSequence ):
     
     #print limit (ignore this)
     passlimit = 25000
-    shouldIprint = True
+    shouldIprint = False
     
     def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3, shouldIprint = False):
         OutputSequence.__init__( self, Channel.getOutputSequence() )
@@ -330,10 +330,10 @@ class DUDEOutputSequence( OutputSequence ):
         self.Sequence = self.ReceivedSequence[: self.ContextLength ] + self.Sequence[ self.ContextLength : len(self.ReceivedSequence) - self.ContextLength ] + self.ReceivedSequence [ len(self.ReceivedSequence) - self.ContextLength: ]
     
     def __IncreamentDictElement(self, key ):
-        self.HashDictionary[ key  ] = self.HashDictionary.get(key, 0) + 1
+        self.HashDictionary[ key  ] = self.HashDictionary.get(key, -1) + 1 # Here minus -1 is used to ignore the first observation
         
     def __getDictProbabilites(self, key ):
-        return( self.HashDictionary.get( tuple(key), 0) )
+        return( self.HashDictionary.get( tuple(key), 0) ) 
     
     # Calculates m( z^n, z_{i-1}^{i-k}, z_{i+1}^{i+k} ] [z_i ]
     def __FirstPass(self):
@@ -491,8 +491,6 @@ class DUDEOutputSequence( OutputSequence ):
         return( minPenalty[ "letter"])
 
 class System:
-    
-    
     p= 0.1
     wrongSymbolLoss = 10
     rightSymbolLoss = 0.01
@@ -569,7 +567,7 @@ class System:
             writer.writerows(RowstoWrite)
         f.close()
         
-    def main(self):
+    def Markov(self):
         
         self.NumberOfInstances = 0
         #Calling the functions
