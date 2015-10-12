@@ -442,19 +442,19 @@ class DUDEOutputSequence( OutputSequence ):
                 print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
             print("##################################################################################################")
             print("%%%%%%%%%%%%%%%%%%%%%%%%%% Corrected %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint  and 
-                self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
-                self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK ):
-            print( positionI, "  !!!!!!!!!!, No change by the algo",  ". Our algo =", minPenalty[ "letter" ], "Received letter", z_i)
-            print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
-            print( "Context = ", z_1to_K ," * ", z1toK)
-       
-            self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [ self.InputSequence.Sequence[ positionI ] ]+ list( set( [ minPenalty[ "letter" ], z_i ] ) ) )
-            print("##################################################################################################")
-            if os.name == "posix":  
-                Enter = str( input("Enter something!!") )
-           
-        
+#         elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint  and 
+#                 self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
+#                 self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK ):
+#             print( positionI, "  !!!!!!!!!!, No change by the algo",  ". Our algo =", minPenalty[ "letter" ], "Received letter", z_i)
+#             print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
+#             print( "Context = ", z_1to_K ," * ", z1toK)
+#        
+#             self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [ self.InputSequence.Sequence[ positionI ] ]+ list( set( [ minPenalty[ "letter" ], z_i ] ) ) )
+#             print("##################################################################################################")
+#             if os.name == "posix":  
+#                 Enter = str( input("Enter something!!") )
+#            
+#         
     
     #Debuggin Tool
     def __printDictionaryValues(self, pre, z_i, post, Alphabet ):
