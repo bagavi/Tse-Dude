@@ -602,7 +602,7 @@ class System:
         #Calling the functions
         # Creating a MarkovModel Input Sequence        
         #Looping Over Markov Transition Probabilities
-        for length in [ 100, 100, 100, 100,100,100, 1000,1000,1000, 1000, 1000, 1000, 10000,10000,10000,10000,100000,100000,100000,100000,1000000,1000000,1000000,1000000,]:
+        for length in [1000000,1000000,1000000,1000000,]:
             self.MarkovSequenceLength = length
             for markovTransitionProbab in numpy.arange(0.7,1,.05):
                 self.r1 = markovTransitionProbab
