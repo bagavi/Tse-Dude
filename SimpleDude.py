@@ -595,7 +595,38 @@ class System:
                 #Decoding the Sequence
                 self.Output.DecodeSequence()
                 self.printInformation(Filename="Results_negative1.csv")
-                
+
+    def DependenceonLength(self):
+        
+        self.NumberOfInstances = 0
+        #Calling the functions
+        # Creating a MarkovModel Input Sequence        
+        #Looping Over Markov Transition Probabilities
+        for length in [ 100, 100, 100, 100,100,100, 1000,1000,1000, 1000, 1000, 1000, 10000,10000,10000,10000,100000,100000,100000,100000,1000000,1000000,1000000,1000000,]:
+            self.MarkovSequenceLength = length
+            for markovTransitionProbab in numpy.arange(0.7,1,.05):
+                self.r1 = markovTransitionProbab
+                r2 = (1 - self.r1)/3
+                r1 = self.r1
+                self.MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r2, 'C':r2} ),
+                                                      'G' : OrderedDict( {'A':r2, 'G':r1, 'T':r2, 'C':r2} ),
+                                                      'T' : OrderedDict( {'A':r2, 'G':r2, 'T':r1, 'C':r2} ),
+                                                    'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
+                                                    } )
+                #
+                self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
+                # Creating the channel class
+                Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+    
+                for i in range( self.ContextLengthMin, self.ContextLengthMax ):
+                    self.NumberOfInstances += 1 
+                    self.ContextLength = i
+                    # Creating the output class
+                    self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+                    #Decoding the Sequence
+                    self.Output.DecodeSequence()
+                    self.printInformation(Filename="Results_length.csv")
+
     def mainRealData(self, filename, printResultFile):
         
         self.NumberOfInstances = 0
