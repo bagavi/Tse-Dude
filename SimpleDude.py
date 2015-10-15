@@ -594,7 +594,7 @@ class System:
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 #Decoding the Sequence
                 self.Output.DecodeSequence()
-                self.printInformation()
+                self.printInformation(Filename="Results_negative1.csv")
                 
     def mainRealData(self, filename, printResultFile):
         
