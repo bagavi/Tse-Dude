@@ -27,7 +27,7 @@ else:
 
 
 Ratio = .7
-markovTransitionProbab = .9
+markovTransitionProbab = .975
 shouldIprint =  lambda x, y: False
 
 Obj = SimpleDude.System( MarkovSequenceLength = SequenceLength, ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
