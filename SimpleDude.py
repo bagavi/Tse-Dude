@@ -737,16 +737,15 @@ class System:
                                             'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
                                             } )
         #
-        for CL in range(self.ContextLengthMin, self.ContextLengthMax):
-            self.ContextLength = CL
-            for ratio in numpy.arange(0.05,1,.05):
+        for ratio in numpy.arange(0.05,1,.05):
+            self.IIDMarkovRatio = ratio
+            self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, self.MarkovTransitionDictionary )
+        # Creating the channel class
+            Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+         
+            for CL in range(self.ContextLengthMin, self.ContextLengthMax):
+                self.ContextLength = CL       # Creating the output class
                 print( "\n\nRATIO === ", ratio, "Context Length", CL, "Length", self.MarkovSequenceLength )
-                self.IIDMarkovRatio = ratio
-                self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, self.MarkovTransitionDictionary )
-            # Creating the channel class
-                Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
-        
-                # Creating the output class
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 #Decoding the Sequence
                 self.Output.DecodeSequence()
