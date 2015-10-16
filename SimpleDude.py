@@ -612,7 +612,7 @@ class System:
         #Calling the functions
         # Creating a MarkovModel Input Sequence        
         #Looping Over Markov Transition Probabilities
-        for markovTransitionProbab in numpy.arange(0.4,1,.05):
+        for markovTransitionProbab in numpy.arange(0.05,1,.05):
             self.TransitionDic(markovTransitionProbab)
             self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
             # Creating the channel class
