@@ -30,7 +30,7 @@ Ratio = .7
 markovTransitionProbab = .8
 shouldIprint =  lambda x, y: False
 
-Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
+Obj = SimpleDude.System( SequenceLength = SequenceLength ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
 Obj.IIDMarkov(markovTransitionProbab)
 I = Obj.Input.Sequence
 C = Obj.Output.ReceivedSequence
