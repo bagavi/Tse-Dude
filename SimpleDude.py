@@ -734,7 +734,7 @@ class System:
         self.MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r2, 'C':r2} ),
                                               'G' : OrderedDict( {'A':r2, 'G':r1, 'T':r2, 'C':r2} ),
                                               'T' : OrderedDict( {'A':r2, 'G':r2, 'T':r1, 'C':r2} ),
-                                            'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
+                                'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
                                             } )
         #
         for ratio in numpy.arange(0.45,1.01,.025):
