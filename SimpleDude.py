@@ -740,7 +740,7 @@ class System:
         for CL in range(self.ContextLengthMin, self.ContextLengthMax):
             self.ContextLength = CL
             for ratio in numpy.arange(0.05,1,.05):
-                print( "\n\nRATIO === ", ratio, "Context Length", CL )
+                print( "\n\nRATIO === ", ratio, "Context Length", CL, "Length", self.MarkovSequenceLength )
                 self.IIDMarkovRatio = ratio
                 self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, self.MarkovTransitionDictionary )
             # Creating the channel class
