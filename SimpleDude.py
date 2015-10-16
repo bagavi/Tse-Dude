@@ -203,7 +203,27 @@ class MarkovModelSequence( InputSequence ):
             RandomNumber = SampleDistributionFromPdf( ProbVector, range( len(self.Alphabet )))
             self.Sequence.append(self.ReverseAlphabetDictionaryKeyMap[ RandomNumber ])
         
-
+class IIDandMarkovSequence( InputSequence ):
+    
+    MarkovRatio = .7
+    IIDRatio = 1 - MarkovRatio
+    
+    def __init__(self, Alphabet, MarkovRatio, Length, MarkovTransitionDictionary):
+        InputSequence.__init__(self, Alphabet, Length, Null = 0)
+        self.MarkovRatio = MarkovRatio
+        self.IIDRatio = 1 - MarkovRatio
+        self.MarkovLength = Length*self.MarkovRatio
+        self.IIDLength = Length = self.MarkovLength
+        self.MarkovTransitionDictionary = MarkovTransitionDictionary
+        self.Sequence = []
+        
+    def GenerateSequence(self):
+        MarkovSequence = MarkovModelSequence( self.Alphabet, self.MarkovLength, self.MarkovTransitionDictionary, [1])
+        IIDSequence = IIDInputSequence( self.Alphabet, self.IIDLength, [ .25 ]*4)
+        self.Sequence = MarkovSequence.Sequence + IIDSequence.Sequence
+#         self.Sequence = MarkovSequence.Sequence[: len(MarkovSequence)/2 ] + IIDSequence.Sequence +MarkovSequence.Sequence[ len(MarkovSequence)/2: ]
+        
+        
 class BlockwiseIndependentSequence( InputSequence ):
     
     BlockSize            = 15
@@ -293,7 +313,8 @@ class DUDEOutputSequence( OutputSequence ):
     
     #Number of times the algo replaced a right symbol with a wrong one ( because of the wrong context)
     SpolitByWrongContext = 0
-    
+    #
+    Nochangesmade = 0
     #print limit (ignore this)
     passlimit = 25000
     shouldIprint = False
@@ -330,7 +351,7 @@ class DUDEOutputSequence( OutputSequence ):
         self.Sequence = self.ReceivedSequence[: self.ContextLength ] + self.Sequence[ self.ContextLength : len(self.ReceivedSequence) - self.ContextLength ] + self.ReceivedSequence [ len(self.ReceivedSequence) - self.ContextLength: ]
     
     def __IncreamentDictElement(self, key ):
-        self.HashDictionary[ key  ] = self.HashDictionary.get(key, 0) + 1 # Here minus -1 is used to ignore the first observation
+        self.HashDictionary[ key  ] = self.HashDictionary.get(key, -1) + 1 # Here minus -1 is used to ignore the first observation
         
     def __getDictProbabilites(self, key ):
         return( self.HashDictionary.get( tuple(key), 0) ) 
@@ -398,7 +419,11 @@ class DUDEOutputSequence( OutputSequence ):
                 self.SpolitByWrongContext += 1
         elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
             self.CorrectedByContext += 1
-    
+            
+        elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint  and 
+                self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
+                self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK ):
+            self.Nochangesmade += 1
         if( self.shouldIprint(z_i, self.Alphabet) ):
             self.__debuggingSection(z_i, z_1to_K, z1toK, positionI, minPenalty, M)
         #debugging tool END
@@ -413,15 +438,15 @@ class DUDEOutputSequence( OutputSequence ):
         if( z_i == self.InputSequence.Sequence [ positionI ] and z_i != minPenalty[ "letter" ] ):
             print("##################################################################################################")
             print( "( ", positionI, ")", "WTF, the algorithm changed the right symbol ", z_i, "to ", minPenalty[ "letter" ] )
-            print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
+            print( "I:  8      ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
             print( "Context = ", z_1to_K ," * ", z1toK, "Current symbol", z_i)
             for letter in self.Alphabet:
                 # Fraction of context with z_1to_K + letter + z1toK
                 M[ letter ]=  self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  )
                 print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
             print("***********************************")
-            self.__printDictionaryValues(self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ], z_i,
-                                        self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] ,self.Alphabet)
+#             self.__printDictionaryValues(self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ], z_i,
+#                                         self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] ,self.Alphabet)
             if( self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and
                 self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK and self.shouldIprint ): 
                 # implies that the context was right 
@@ -432,7 +457,7 @@ class DUDEOutputSequence( OutputSequence ):
             if os.name == "posix":  
                  Enter = str( input("Enter something!!") )               
 
-        elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
+        elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] and False ):
             print("##################################################################################################")
             print( "!!!!!!!!!!, the algorithm did the right thing ", z_i, "to ", minPenalty[ "letter" ] )
             print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
@@ -446,19 +471,19 @@ class DUDEOutputSequence( OutputSequence ):
             if os.name == "posix":  
                  self.Enter = str( input("Enter something!!") )               
 
-#         elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint  and 
-#                 self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
-#                 self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK ):
-#             print( positionI, "  !!!!!!!!!!, No change by the algo",  ". Our algo =", minPenalty[ "letter" ], "Received letter", z_i)
-#             print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
-#             print( "Context = ", z_1to_K ," * ", z1toK)
-#        
-#             self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [ self.InputSequence.Sequence[ positionI ] ]+ list( set( [ minPenalty[ "letter" ], z_i ] ) ) )
-#             print("##################################################################################################")
-#             if os.name == "posix":  
-#                 Enter = str( input("Enter something!!") )
-#            
-#         
+        elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint  and 
+                self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
+                self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK and False):
+            print( positionI, "  !!!!!!!!!!, No change by the algo",  ". Our algo =", minPenalty[ "letter" ], "Received letter", z_i)
+            print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
+            print( "Context = ", z_1to_K ," * ", z1toK)
+        
+            self.__printDictionaryValues( z_1to_K, z_i, z1toK,  [ self.InputSequence.Sequence[ positionI ] ]+ list( set( [ minPenalty[ "letter" ], z_i ] ) ) )
+            print("##################################################################################################")
+            if os.name == "posix":  
+                Enter = str( input("Enter something!!") )
+            
+         
     
     #Debuggin Tool
     def __printDictionaryValues(self, pre, z_i, post, Alphabet ):
@@ -505,9 +530,10 @@ class System:
     ChainWeight = [1]
     ContextLength = 3
     
-    def __init__(self, ContextLengthMin = 3, ContextLengthMax = 7, MarkovSequenceLength = 10000, flipProbab = .9, shouldIprint = False):
+    def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, MarkovSequenceLength = 10000, flipProbab = .9, shouldIprint = False):
         self.ContextLengthMin = ContextLengthMin
         self.ContextLengthMax = ContextLengthMax
+        self.ContextLength = ContextLength
         self.shouldIprint = shouldIprint
         self.MarkovSequenceLength = MarkovSequenceLength
         self.p = flipProbab
@@ -540,8 +566,9 @@ class System:
         z3 = PointWiseListDifference( Received, Corrected)
         print( "Difference between received and corrected sequence",sum( z3 ) )
         print( "Correct changes Made by the right context", self.Output.CorrectedByContext)
-        print( "Number of spoils by the right context", self.Output.SpoiltByContext)
         print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
+        print( "Number of spoils by the right context", self.Output.SpoiltByContext)
+        print( "Number of unchanged", self.Output.Nochangesmade)
         print( "Fraction of changed symbols (w.r.t no of errors)", float( sum( z3 ) )/float( sum( z1 ) ))
         print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) ))
         fractionOfChanges = float( sum( z3 ) )/float( sum( z1 ) )
@@ -670,6 +697,62 @@ class System:
             self.AnalyzeContextGroupInfo( self.GroupInfo)
             self.printInformation(printResultFile)
     
+    def SimpleMain(self, markovTransitionProbab):
+        self.NumberOfInstances = 0
+        self.r1 = -1 #Bad code
+        #Calling the functions
+
+        self.r1 = markovTransitionProbab
+        r2 = (1 - self.r1)/3
+        r1 = self.r1
+        self.MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r2, 'C':r2} ),
+                                              'G' : OrderedDict( {'A':r2, 'G':r1, 'T':r2, 'C':r2} ),
+                                              'T' : OrderedDict( {'A':r2, 'G':r2, 'T':r1, 'C':r2} ),
+                                            'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
+                                            } )
+        #
+        self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
+        # Creating the channel class
+        Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+
+        # Creating the output class
+        self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+        #Decoding the Sequence
+        self.Output.DecodeSequence()
+        self.printInformation(Filename="Del.csv")
+#         groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
+#         self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
+#         self.AnalyzeContextGroupInfo( self.GroupInfo )
+
+    def IIDMarkov(self, markovTransitionProbab):
+        self.NumberOfInstances = 0
+        self.r1 = -1 #Bad code
+        #Calling the functions
+
+        self.r1 = markovTransitionProbab
+        r2 = (1 - self.r1)/3
+        r1 = self.r1
+        self.MarkovTransitionDictionary = OrderedDict( { 'A' : OrderedDict( {'A':r1, 'G':r2, 'T':r2, 'C':r2} ),
+                                              'G' : OrderedDict( {'A':r2, 'G':r1, 'T':r2, 'C':r2} ),
+                                              'T' : OrderedDict( {'A':r2, 'G':r2, 'T':r1, 'C':r2} ),
+                                            'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
+                                            } )
+        #
+        for ratio in numpy.arange(0,1,.05):
+            print( "\n\nRATIO === ", ratio)
+            self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, markovTransitionProbab )
+        # Creating the channel class
+            Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+    
+            # Creating the output class
+            self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+            #Decoding the Sequence
+            self.Output.DecodeSequence()
+            self.printInformation(Filename="Del.csv")
+#         groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
+#         self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
+#         self.AnalyzeContextGroupInfo( self.GroupInfo )
+
     def AnalyzeContextGroupInfo(self, Dict ):
         Ratios = []
         for i in Dict:

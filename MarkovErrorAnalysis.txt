@@ -1,0 +1,28 @@
+In ['G', 'G', 'G', 'G', 'C', 'C', 'C']
+Re ['G', 'G', 'G', 'A', 'C', 'C', 'C']
+Ou ['G', 'G', 'G', 'C', 'C', 'C', 'C'] 
+
+Wrong Change
+
+In ['C', 'C', 'C', 'C', 'C', 'A', 'A']
+Re ['C', 'C', 'C', 'A', 'G', 'T', 'A']
+Ou ['C', 'C', 'C', 'A', 'G', 'T', 'A'] 
+
+Stuff gone crazy!
+
+In ['G', 'G', 'G', 'G', 'T', 'T', 'T']
+Re ['G', 'G', 'G', 'C', 'T', 'T', 'T']
+Ou ['G', 'G', 'G', 'C', 'T', 'T', 'T'] 
+
+
+1044
+In ['G', 'G', 'G', 'T', 'T', 'T', 'T']
+Re ['G', 'G', 'G', 'T', 'T', 'G', 'T']
+Ou ['G', 'G', 'G', 'G', 'T', 'T', 'T'] 
+
+Wrong Context
+
+1273
+In ['A', 'A', 'T', 'T', 'T', 'T', 'T']
+Re ['A', 'A', 'T', 'A', 'T', 'T', 'T']
+Ou ['A', 'A', 'T', 'A', 'T', 'T', 'T'] 
