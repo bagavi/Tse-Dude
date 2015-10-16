@@ -3,8 +3,8 @@ from _csv import reader
 import CommonFunctions
 
 
-def RestructureData( FlipProbab ):
-    Results = CommonFunctions.FiletoArray('Results_posix.csv')
+def RestructureData( FlipProbab , Filename ):
+    Results = CommonFunctions.FiletoArray(Filename)
     Data = [ [ '*' ]]
     RowSize = 0
     ColumnSize = 1
@@ -100,5 +100,5 @@ def AnalyseLengthSimData(ProbRange = [ .9 ]):
     CommonFunctions.WriteArrayinFile(MergedArray, "Test.csv")
     a = 10
     
-# RestructureData( .1)
-AnalyseLengthSimData([.9])
+RestructureData( .1, 'Results_negative1.csv')
+#AnalyseLengthSimData([.9])
