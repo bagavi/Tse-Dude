@@ -738,7 +738,7 @@ class System:
                                 'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
                                             } )
         #
-        for ratio in numpy.arange(.1,1.01,.1):
+        for ratio in numpy.arange(.4,1.01,.025):
             self.IIDMarkovRatio = ratio
             self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, self.MarkovTransitionDictionary )
         # Creating the channel class
