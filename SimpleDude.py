@@ -739,7 +739,7 @@ class System:
         #
         for CL in range(self.ContextLengthMin, self.ContextLengthMax):
             self.ContextLength = CL
-            for ratio in numpy.arange(0.05,1,.2):
+            for ratio in numpy.arange(0.05,1,.05):
                 print( "\n\nRATIO === ", ratio)
                 self.IIDMarkovRatio = ratio
                 self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, self.MarkovTransitionDictionary )
@@ -750,7 +750,7 @@ class System:
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 #Decoding the Sequence
                 self.Output.DecodeSequence()
-                self.PrintInformation(Filename="Del.csv")
+                self.PrintInformation(Filename="IIDMarkovResults_"+os.name+".csv")
 #         groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #         self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #         self.AnalyzeContextGroupInfo( self.GroupInfo )

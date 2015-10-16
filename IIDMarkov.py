@@ -12,14 +12,14 @@ if len( sys.argv )> 2 :
 else:
     flipProbab = 0.1
 
-if len( sys.argv )> 2:
-    ContextLengthMin = int( sys.argv[2] )
+if len( sys.argv )> 3:
+    ContextLengthMin = int( sys.argv[3] )
 else:
     ContextLengthMin = 3
 
 
-if len( sys.argv )> 3:
-    ContextLengthMax = int( sys.argv[3] )
+if len( sys.argv )> 4:
+    ContextLengthMax = int( sys.argv[4] )
 else:
     ContextLengthMax = 6
 
