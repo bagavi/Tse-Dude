@@ -1,5 +1,5 @@
 import random
-import numpy, csv
+import numpy, csv, os
 from collections import OrderedDict
 
 def CdfFromPdf( Pdf ):
@@ -50,13 +50,24 @@ def WriteArrayinFile( Array, Filename ):
     with open( Filename, 'w') as f:                                    
             writer = csv.writer(f)                                                       
             writer.writerows(Array)
-def FiletoArray( Filename = 'Results_posix.csv' ):
+            
+def FiletoArray( Filename = 'Results_posix.csv' , Int=False):
     Array = []
     with open(Filename, 'r') as f:
         reader = csv.reader(f)
-        for i in reader:
-            Array += [ i ]
-    
+        if Int:
+            for i in reader:
+                try:
+                    Int_i = []
+                    for j in i:
+                        Int_i += [ float(j)]
+                    Array += [ Int_i ]
+                except:
+                    pass
+        else:
+            for i in reader:
+                Array += [ i ]
+        
     return(Array[1:])
 
 def groupContexts( Dictionary, Alphabet ):
@@ -67,3 +78,6 @@ def groupContexts( Dictionary, Alphabet ):
         GroupContext = list( context[: int( (ConLen-1)/2)] ) + [ '*' ] + list( context[ int( (ConLen+1)/2) :] )
         GroupDict[ tuple( GroupContext ) ] = GroupDict.get( tuple( GroupContext ), [] ) + [value]
     return(GroupDict)
+
+def ChangeDir():
+    os.chdir("D:\Eclipse\Tse-Dude")

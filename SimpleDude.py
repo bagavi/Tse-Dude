@@ -330,7 +330,7 @@ class DUDEOutputSequence( OutputSequence ):
         self.Sequence = self.ReceivedSequence[: self.ContextLength ] + self.Sequence[ self.ContextLength : len(self.ReceivedSequence) - self.ContextLength ] + self.ReceivedSequence [ len(self.ReceivedSequence) - self.ContextLength: ]
     
     def __IncreamentDictElement(self, key ):
-        self.HashDictionary[ key  ] = self.HashDictionary.get(key, -1) + 1 # Here minus -1 is used to ignore the first observation
+        self.HashDictionary[ key  ] = self.HashDictionary.get(key, 0) + 1 # Here minus -1 is used to ignore the first observation
         
     def __getDictProbabilites(self, key ):
         return( self.HashDictionary.get( tuple(key), 0) ) 
@@ -602,7 +602,7 @@ class System:
         #Calling the functions
         # Creating a MarkovModel Input Sequence        
         #Looping Over Markov Transition Probabilities
-        for length in [1000000,1000000,1000000,1000000,]:
+        for length in [100,1000,10000,100000]*10+[1000000]*3:
             self.MarkovSequenceLength = length
             for markovTransitionProbab in numpy.arange(0.7,1,.05):
                 self.r1 = markovTransitionProbab
