@@ -1,4 +1,5 @@
 InputSequence Length,Channel Flip Prob,Context Length,Markov Transition Probabilities,No. of Errors,No of changes by DUDE,Number of right changes,fraction of changes,fraction of right changes
+1000000,0.1,4,1.0,99685,94885,94804,0.952,0.951
 1000000,0.1,3,1.0,99685,91566,91341,0.919,0.916
 1000000,0.1,2,1.0,99685,90563,90152,0.908,0.904
 1000000,0.1,1,1.0,99685,84238,81046,0.845,0.813
