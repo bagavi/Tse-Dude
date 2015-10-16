@@ -8,9 +8,8 @@
 
 from abc import ABCMeta, abstractmethod
 from CommonFunctions import *
-import collections, os, sys, time, csv, Bio
-from collections import OrderedDict
-from Bio import SeqIO, Seq
+import math
+from Bio import SeqIO
 
 """
     Generic Sequence Class. Defines generic functions on sequences
@@ -57,7 +56,9 @@ class InputSequence( Sequence ):
         self.Sequence = [ self.Null ] * self.SequenceLength
     
     def GenerateSequence(self): pass       
-
+    
+    def InitializeSequence(self, Sequence ):
+        self.Sequence = Sequence
 """
     Generic OutputSequence (Decoder) class
 """
@@ -297,6 +298,29 @@ class DiscreteMemoryChannel( Channel ):
     def getOutputAlphabet(self):
         return self.InputSequence.Alphabet
 
+
+class Reads():    
+    
+    #Array of InputSequences
+    Reads = []
+    
+    def __init__(self, Sequence, ReadLength, CoverageDepth = 5):
+        self.Sequence = Sequence
+        self.ReadLength = ReadLength
+        self.NumberofReads = math.ceil( self.Sequence.getLength()*CoverageDepth / CoverageDepth )
+    
+    def GenerateReads(self):
+        for i in range( self.NumberofReads ):
+            RandomIndex = random.randint( 0, self.Sequence.getLength() )
+            SingleRead = self.Sequence.getSequence()[ RandomIndex: RandomIndex + self.ReadLength ]
+            SingleReadSequence = InputSequence()
+            SingleReadSequence.InitializeSequence(SingleRead)
+            
+            Channel = DiscreteMemoryChannel( self.Single, self.TransitionDictionary )
+
+            OutputSingleReadSequence = 1
+            Reads += [ SingleReadSequence ]
+
 """
     Implements DUDE on DMC
 """
@@ -517,7 +541,6 @@ class DUDEOutputSequence( OutputSequence ):
         return( minPenalty[ "letter"])
 
 class System:
-    p= 0.1
     wrongSymbolLoss = 10
     rightSymbolLoss = 0.01
     LossFunction = OrderedDict ( 
@@ -527,19 +550,20 @@ class System:
                      'C' : OrderedDict( {'A':wrongSymbolLoss, 'G':wrongSymbolLoss, 'T':wrongSymbolLoss, 'C':rightSymbolLoss} )
                 })
     # Input Sequence Length
-    MarkovSequenceLength = 0
+    SequenceLength = 0
     ChainWeight = [1]
     ContextLength = 3
     IIDMarkovRatio = -1
     
-    def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, MarkovSequenceLength = 10000, flipProbab = .9, shouldIprint = False):
+    def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, SequenceLength = 10000, flipProbab = .9, shouldIprint = False):
         self.ContextLengthMin = ContextLengthMin
         self.ContextLengthMax = ContextLengthMax
         self.ContextLength = ContextLength
         self.shouldIprint = shouldIprint
-        self.MarkovSequenceLength = MarkovSequenceLength
+        self.SequenceLength = SequenceLength
         self.p = flipProbab
         p = self.p
+        self.NumberOfInstances = 0
         self.TransitionDictionary = OrderedDict( { 
                                  'A' : OrderedDict( {'A':1-p, 'G':p/3, 'T':p/3, 'C':p/3} ),
                                  'G' : OrderedDict( {'A':p/3, 'G':1-p, 'T':p/3, 'C':p/3} ),
@@ -607,14 +631,10 @@ class System:
                                             } )
         
     def Markov(self):
-        
-        self.NumberOfInstances = 0
-        #Calling the functions
-        # Creating a MarkovModel Input Sequence        
         #Looping Over Markov Transition Probabilities
         for markovTransitionProbab in numpy.arange(0.4,1,.05):
             self.TransitionDic(markovTransitionProbab)
-            self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
+            self.Input = MarkovModelSequence( self.Alphabet, self.SequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
             # Creating the channel class
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
 
@@ -627,16 +647,11 @@ class System:
                 self.PrintInformation(Filename="Results_test.csv")
 
     def DependenceonLength(self):
-        
-        self.NumberOfInstances = 0
-        #Calling the functions
-        # Creating a MarkovModel Input Sequence        
-        #Looping Over Markov Transition Probabilities
         for length in [100,1000,10000,100000]*10+[1000000]*3:
-            self.MarkovSequenceLength = length
+            self.SequenceLength = length
             for markovTransitionProbab in numpy.arange(0.7,1,.05):
                 self.TransitionDic(markovTransitionProbab)
-                self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
+                self.Input = MarkovModelSequence( self.Alphabet, self.SequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
                 # Creating the channel class
                 Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
     
@@ -648,8 +663,6 @@ class System:
                     self.PrintInformation(Filename="Results_length.csv")
 
     def mainRealData(self, filename, printResultFile):
-        
-        self.NumberOfInstances = 0
         self.r1 = -1 #Bad code
         #Calling the functions
 
@@ -665,11 +678,9 @@ class System:
             groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
             self.PrintInformation(printResultFile)
             self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
-            self.AnalyzeContextGroupInfo( self.GroupInfo )
-
+            AnalyzeContextGroupInfo( self.GroupInfo )
+    
     def ReadData(self, filename, NoOfReads, printResultFile = "Results_Read_"+os.name+".csv"):
-        
-        self.NumberOfInstances = 0
         self.r1 = -1 #Bad code
         #Calling the functions
 
@@ -683,14 +694,14 @@ class System:
             # Creating the output class
             self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
             self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
-            self.AnalyzeContextGroupInfo( self.GroupInfo)
+            AnalyzeContextGroupInfo( self.GroupInfo)
             self.PrintInformation(printResultFile)
     
     def SimpleMain(self, markovTransitionProbab):
         self.NumberOfInstances = 0
         #Calling the functions
         self.TransitionDic(markovTransitionProbab)
-        self.Input = MarkovModelSequence( self.Alphabet, self.MarkovSequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
+        self.Input = MarkovModelSequence( self.Alphabet, self.SequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
         # Creating the channel class
         Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
         # Creating the output class
@@ -699,32 +710,20 @@ class System:
 
 
     def IIDMarkov(self, markovTransitionProbab):
-        self.NumberOfInstances = 0
         self.TransitionDic(markovTransitionProbab)
 #
         for ratio in numpy.arange(.4,1.01,.025):
             self.IIDMarkovRatio = ratio
-            self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, self.MarkovTransitionDictionary )
+            self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.SequenceLength, self.MarkovTransitionDictionary )
             # Creating the channel class
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
          
             for CL in range(self.ContextLengthMin, self.ContextLengthMax):
                 self.ContextLength = CL       # Creating the output class
-                print( "\n\nRATIO === ", ratio, "Context Length", CL, "Length", self.MarkovSequenceLength )
+                print( "\n\nRATIO === ", ratio, "Context Length", CL, "Length", self.SequenceLength )
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
 
-    def AnalyzeContextGroupInfo(self, Dict ):
-        Ratios = []
-        for i in Dict:
-            Dict[i] = [x / min(Dict[i]) for x in Dict[i]]
-            Ratios += [ numpy.std( Dict[i]) ]
-        Ratios.sort()
-        Ratios = Ratios[::-1]
-        print( "FEW STATS")
-        aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-2))
-        print(  "Good std til 10", aa,"Length",len(Ratios))
-    
-        aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-5))
-#        print( Ratios[ 0: aa ])
-        print(  "Good std till 13", aa,"Length",len(Ratios))        
+    def ReadSimulation(self, filename, outputfile = "Results_reads_simulation__"+os.name+".csv"):
+        
+        self.Input = ReadInputFromFile( filename )

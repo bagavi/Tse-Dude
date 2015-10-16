@@ -3,59 +3,6 @@ from _csv import reader
 import CommonFunctions
 from IIDMarkov import markovTransitionProbab
 
-
-def RestructureData( FlipProbab , Filename ):
-    Results = CommonFunctions.FiletoArray(Filename)
-    Data = [ [ '*' ]]
-    RowSize = 0
-    ColumnSize = 1
-    minContextLength = 1000
-    
-    for i in Results:
-        
-        FlipProbab_i = float( i[1] )
-        if FlipProbab != FlipProbab_i:
-            continue
-        
-        TransitionProbab = float(i[3])
-        try:
-            Data[0].index(TransitionProbab, )
-        except:
-            ColumnSize += 1
-            Data[0].append(TransitionProbab)
-        Context = int( i[2] )
-        if Context < minContextLength:
-            minContextLength = Context
-        if RowSize < Context:
-            RowSize = Context
-
-    for i in range( RowSize ):
-        Data.append( [i+minContextLength]+[0]*(ColumnSize) )
-    
-    for i in Results:
-        InputSize = i[0]
-        FlipProbab_i = float( i[1] )
-        if FlipProbab != FlipProbab_i:
-            continue
-        Context = int( i[2] ) 
-        TransitionProbab = float(i[3])
-        try:
-            TotalChanges = float(i[7])
-        except:
-            pass
-        try:
-            Correctchanges = float(i[8])
-        except:
-            pass
-        try:
-            index = Data[0].index(TransitionProbab)
-        except:
-            pass
-        Data[Context - minContextLength + 1][index] = TotalChanges
-    print (Data)
-    CommonFunctions.WriteArrayinFile(Data, 'Draw_results_1.csv')
-    print( "DONE")
-
     
 def AnalyseLengthSimData(ProbRange = [ .9 ]):
     ReadArray = CommonFunctions.FiletoArray('Results_length.csv', Int=True)
@@ -101,30 +48,7 @@ def AnalyseLengthSimData(ProbRange = [ .9 ]):
     CommonFunctions.WriteArrayinFile(MergedArray, "Test.csv")
     a = 10
     
-def AnalyzeIIDMarkovData(markovTransitionProbab = .9):
-    Array = CommonFunctions.FiletoArray('IIDMarkovResults_posix.csv', Int=True)
-    ReadArray = []
-    for row in Array:
-        if row[3] == markovTransitionProbab:
-            ReadArray += [row]
-    ReadArray.sort( key = lambda x: [ x[2] , x[-1]])
-    ContextCol = list( set( list( numpy.array(ReadArray)[:,2] ) ) )
-    ContextCol.sort()
-    RatioCol   = list( set( list( numpy.array(ReadArray)[:,-1] ) ) )
-    RatioCol.sort()
-    
-    DataMatrix = numpy.zeros( ( len(RatioCol) + 1 , len(ContextCol) + 1 ))
-    for row in ReadArray:
-        DataMatrix[ int( RatioCol.index(row[-1] ) ) + 1 ][ int( row[2] ) ] = row[-2]
-#         print(row)
-#         print (DataMatrix)
-    DataMatrix[0] = [-1] + ContextCol
-    DataMatrix[:,0] = [-1] + RatioCol
-    print( DataMatrix )
-    CommonFunctions.WriteArrayinFile(DataMatrix, "Draw_IId_Markov.csv")
-    a = 10
-    
-AnalyzeIIDMarkovData( markovTransitionProbab = .9)    
+  
 
-#RestructureData( .1, 'Results_negative1.csv')
+RestructureData( .1, 'Results_test.csv')
 #AnalyseLengthSimData([.9])

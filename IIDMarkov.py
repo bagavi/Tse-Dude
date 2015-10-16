@@ -32,12 +32,5 @@ shouldIprint =  lambda x, y: False
 
 Obj = SimpleDude.System( MarkovSequenceLength = SequenceLength, ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
 Obj.IIDMarkov(markovTransitionProbab)
-# 
-# for i in range(len(I)):
-#     if ( I[i] != O[i] ):
-#         print( i )
-#         print( "In", I[i-3:i+4])
-#         print( "Re", C[i-3:i+4])
-#         print( "Ou", O[i-3:i+4], "\n")
-#         a= 10
+
 print( "total execution time", time.time() - StartTime)

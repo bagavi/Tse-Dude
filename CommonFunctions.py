@@ -81,3 +81,18 @@ def groupContexts( Dictionary, Alphabet ):
 
 def ChangeDir():
     os.chdir("D:\Eclipse\Tse-Dude")
+    
+def AnalyzeContextGroupInfo( Dict ):
+        Ratios = []
+        for i in Dict:
+            Dict[i] = [x / min(Dict[i]) for x in Dict[i]]
+            Ratios += [ numpy.std( Dict[i]) ]
+        Ratios.sort()
+        Ratios = Ratios[::-1]
+        print( "FEW STATS")
+        aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-2))
+        print(  "Good std til 10", aa,"Length",len(Ratios))
+    
+        aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-5))
+#        print( Ratios[ 0: aa ])
+        print(  "Good std till 13", aa,"Length",len(Ratios))        
