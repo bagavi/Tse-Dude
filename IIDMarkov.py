@@ -5,7 +5,7 @@ StartTime = time.time()
 if len( sys.argv )> 1 :
     SequenceLength = int( float( sys.argv[1] ) )
 else:
-    SequenceLength = int( 1e3 )
+    SequenceLength = int( 1e4 )
 
 if len( sys.argv )> 2 :
     flipProbab = float( sys.argv[2] )
@@ -15,7 +15,7 @@ else:
 if len( sys.argv )> 3:
     ContextLengthMin = int( sys.argv[3] )
 else:
-    ContextLengthMin = 3
+    ContextLengthMin = 1
 
 
 if len( sys.argv )> 4:
@@ -27,7 +27,7 @@ else:
 
 
 Ratio = .7
-markovTransitionProbab = .8
+markovTransitionProbab = .9
 shouldIprint =  lambda x, y: False
 
 Obj = SimpleDude.System( MarkovSequenceLength = SequenceLength, ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)

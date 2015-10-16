@@ -213,7 +213,7 @@ class IIDandMarkovSequence( InputSequence ):
         self.MarkovRatio = MarkovRatio
         self.IIDRatio = 1 - MarkovRatio
         self.MarkovLength = Length*self.MarkovRatio
-        self.IIDLength = Length = self.MarkovLength
+        self.IIDLength = Length - self.MarkovLength
         self.MarkovTransitionDictionary = MarkovTransitionDictionary
         self.Sequence = []
         self.GenerateSequence()
@@ -268,6 +268,7 @@ class DiscreteMemoryChannel( Channel ):
         print( "Corrupting signal :P. Stop me if you can" )
         Sequence = self.InputSequence.getSequence()
         OutputSequence = [ ]
+        self.Changes = { 'A': 0, 'C': 0, 'T':0, 'G':0 }
         #print( Sequence )
         for index, symbolT in enumerate( Sequence ):
             #print ( symbolT, index, "\n")
@@ -275,13 +276,14 @@ class DiscreteMemoryChannel( Channel ):
                 print( index )
             if symbolT in self.InputSequence.Alphabet:
                 TransitionProbabilities = tuple( self.TransitionDictionary[symbolT].values() )
-                indexSymbol = SampleDistributionFromPdf( TransitionProbabilities, 
-                                                                    tuple( self.TransitionDictionary[ symbolT ].keys() ) 
-                                                                     )
+                indexSymbol = SampleDistributionFromPdf( TransitionProbabilities, tuple( self.TransitionDictionary[ symbolT ].keys() ) )
                 OutputSequence.append( indexSymbol )
+                if indexSymbol != symbolT:
+                    self.Changes[symbolT] += 1
             else:
                 OutputSequence.append( symbolT )
         self.OutputSequence = OutputSequence
+        print( "Total Changes ", self.Changes)
         
     def getTransitionDict(self ):
         return self.TransitionDictionary
@@ -528,6 +530,7 @@ class System:
     MarkovSequenceLength = 0
     ChainWeight = [1]
     ContextLength = 3
+    IIDMarkovRatio = -1
     
     def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, MarkovSequenceLength = 10000, flipProbab = .9, shouldIprint = False):
         self.ContextLengthMin = ContextLengthMin
@@ -620,7 +623,7 @@ class System:
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 #Decoding the Sequence
                 self.Output.DecodeSequence()
-                self.PrintInformation(Filename="Results_negative1.csv")
+                self.PrintInformation(Filename="Results_test.csv")
 
     def DependenceonLength(self):
         
@@ -725,8 +728,6 @@ class System:
 
     def IIDMarkov(self, markovTransitionProbab):
         self.NumberOfInstances = 0
-        self.r1 = -1 #Bad code
-        #Calling the functions
 
         self.r1 = markovTransitionProbab
         r2 = (1 - self.r1)/3
@@ -737,7 +738,7 @@ class System:
                                 'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
                                             } )
         #
-        for ratio in numpy.arange(0.9,1.01,.0125):
+        for ratio in numpy.arange(.1,1.01,.1):
             self.IIDMarkovRatio = ratio
             self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, self.MarkovTransitionDictionary )
         # Creating the channel class
