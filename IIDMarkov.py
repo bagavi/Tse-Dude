@@ -10,12 +10,18 @@ else:
 if len( sys.argv )> 2 :
     flipProbab = float( sys.argv[2] )
 else:
-    flipProbab = 0.01
+    flipProbab = 0.1
+
+if len( sys.argv )> 2:
+    ContextLengthMin = int( sys.argv[2] )
+else:
+    ContextLengthMin = 3
+
 
 if len( sys.argv )> 3:
-    ContextLength = int( sys.argv[3] )
+    ContextLengthMax = int( sys.argv[3] )
 else:
-    ContextLength = 1
+    ContextLengthMax = 6
 
 
 
@@ -24,7 +30,7 @@ Ratio = .7
 markovTransitionProbab = .8
 shouldIprint =  lambda x, y: False
 
-Obj = SimpleDude.System(  ContextLength = ContextLength , MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=shouldIprint)
+Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
 Obj.IIDMarkov(markovTransitionProbab)
 I = Obj.Input.Sequence
 C = Obj.Output.ReceivedSequence

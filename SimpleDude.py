@@ -113,7 +113,7 @@ class IIDInputSequence( InputSequence ):
         Cdf_AlphabetPriors = CdfFromPdf( tuple( self.AlphabetPriors ) )
         
         #Create a random sequence
-        for symbolT in range( self.SequenceLength ):
+        for symbolT in range( int( self.SequenceLength ) ):
             self.Sequence[ symbolT ] = SampleDistributionFromCdf( Cdf_AlphabetPriors, self.Alphabet )
 
 class ReadFromReads( InputSequence ):
@@ -189,7 +189,7 @@ class MarkovModelSequence( InputSequence ):
     
     def __RunMarkovChainForRandomBits(self):
         
-        for i in range( len( self.ChainWeight ), self.SequenceLength ):
+        for i in range( len( self.ChainWeight ), int( self.SequenceLength ) ):
             if i%50000 == 0:
                 print( i )
             PMatrix = []
@@ -216,6 +216,7 @@ class IIDandMarkovSequence( InputSequence ):
         self.IIDLength = Length = self.MarkovLength
         self.MarkovTransitionDictionary = MarkovTransitionDictionary
         self.Sequence = []
+        self.GenerateSequence()
         
     def GenerateSequence(self):
         MarkovSequence = MarkovModelSequence( self.Alphabet, self.MarkovLength, self.MarkovTransitionDictionary, [1])
@@ -373,8 +374,6 @@ class DUDEOutputSequence( OutputSequence ):
             self.Sequence[ i ] = self.__getTrueSymbol( i )
 
     def __getTrueSymbol(self, positionI):
-        
-        
         z_i = self.ReceivedSequence[ positionI ]
         if z_i not in self.Alphabet:
             pass
@@ -546,11 +545,11 @@ class System:
                                 } )
         self.Alphabet =  list( self.TransitionDictionary.keys() )
                 
-    def printInformation(self, Filename = 'Results_'+os.name+'.csv'):
+    def PrintInformation(self, Filename = 'Results_'+os.name+'.csv'):
 
         print( "Instance Number", self.NumberOfInstances)
         print( "Flip probability of DMC ", self.p)
-        print( "Dude Loss dictionary", self.LossFunction)
+#         print( "Dude Loss dictionary", self.LossFunction)
         print( "DUDE context length" , self.ContextLength)
 #         print( "Partial Input Sequence", self.Input.getSequence()[ : 500])
         
@@ -569,14 +568,14 @@ class System:
         print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
         print( "Number of spoils by the right context", self.Output.SpoiltByContext)
         print( "Number of unchanged", self.Output.Nochangesmade)
-        print( "Fraction of changed symbols (w.r.t no of errors)", float( sum( z3 ) )/float( sum( z1 ) ))
+        print( "Fraction of changed symbols (w.r.t no of errors)", float( sum( z3 ) )/float( sum( z1 ) + 1))
         print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) ))
         fractionOfChanges = float( sum( z3 ) )/float( sum( z1 ) )
         fractionOfChanges = float("{0:.3f}".format( fractionOfChanges ) )
-        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes"] 
+        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "Ratio"] 
         RowstoWrite =  [ Heading ]  
-        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) ) ) ) ]]
-        
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) +1 ) ) ), self.IIDMarkovRatio ]]
+         
         try:
             # copying data from the exiting file
             with open(Filename, 'r') as f:
@@ -621,7 +620,7 @@ class System:
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 #Decoding the Sequence
                 self.Output.DecodeSequence()
-                self.printInformation(Filename="Results_negative1.csv")
+                self.PrintInformation(Filename="Results_negative1.csv")
 
     def DependenceonLength(self):
         
@@ -652,7 +651,7 @@ class System:
                     self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                     #Decoding the Sequence
                     self.Output.DecodeSequence()
-                    self.printInformation(Filename="Results_length.csv")
+                    self.PrintInformation(Filename="Results_length.csv")
 
     def mainRealData(self, filename, printResultFile):
         
@@ -672,7 +671,7 @@ class System:
             #Decoding the Sequence
             self.Output.DecodeSequence()
             groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
-            self.printInformation(printResultFile)
+            self.PrintInformation(printResultFile)
             self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
             self.AnalyzeContextGroupInfo( self.GroupInfo )
 
@@ -695,7 +694,7 @@ class System:
             self.Output.DecodeSequence()
             self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
             self.AnalyzeContextGroupInfo( self.GroupInfo)
-            self.printInformation(printResultFile)
+            self.PrintInformation(printResultFile)
     
     def SimpleMain(self, markovTransitionProbab):
         self.NumberOfInstances = 0
@@ -719,7 +718,7 @@ class System:
         self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
         #Decoding the Sequence
         self.Output.DecodeSequence()
-        self.printInformation(Filename="Del.csv")
+        self.PrintInformation(Filename="Del.csv")
 #         groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #         self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #         self.AnalyzeContextGroupInfo( self.GroupInfo )
@@ -738,17 +737,20 @@ class System:
                                             'C' : OrderedDict( {'A':r2, 'G':r2, 'T':r2, 'C':r1} )
                                             } )
         #
-        for ratio in numpy.arange(0,1,.05):
-            print( "\n\nRATIO === ", ratio)
-            self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, markovTransitionProbab )
-        # Creating the channel class
-            Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
-    
-            # Creating the output class
-            self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
-            #Decoding the Sequence
-            self.Output.DecodeSequence()
-            self.printInformation(Filename="Del.csv")
+        for CL in range(self.ContextLengthMin, self.ContextLengthMax):
+            self.ContextLength = CL
+            for ratio in numpy.arange(0.05,1,.2):
+                print( "\n\nRATIO === ", ratio)
+                self.IIDMarkovRatio = ratio
+                self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.MarkovSequenceLength, self.MarkovTransitionDictionary )
+            # Creating the channel class
+                Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+        
+                # Creating the output class
+                self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+                #Decoding the Sequence
+                self.Output.DecodeSequence()
+                self.PrintInformation(Filename="Del.csv")
 #         groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #         self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #         self.AnalyzeContextGroupInfo( self.GroupInfo )
