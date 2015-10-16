@@ -1,6 +1,7 @@
 import os, csv, numpy, math
 from _csv import reader
 import CommonFunctions
+from IIDMarkov import markovTransitionProbab
 
 
 def RestructureData( FlipProbab , Filename ):
@@ -100,5 +101,30 @@ def AnalyseLengthSimData(ProbRange = [ .9 ]):
     CommonFunctions.WriteArrayinFile(MergedArray, "Test.csv")
     a = 10
     
-RestructureData( .1, 'Results_negative1.csv')
+def AnalyzeIIDMarkovData(markovTransitionProbab = .9):
+    Array = CommonFunctions.FiletoArray('IIDMarkovResults_posix.csv', Int=True)
+    ReadArray = []
+    for row in Array:
+        if row[3] == markovTransitionProbab:
+            ReadArray += [row]
+    ReadArray.sort( key = lambda x: [ x[2] , x[-1]])
+    ContextCol = list( set( list( numpy.array(ReadArray)[:,2] ) ) )
+    ContextCol.sort()
+    RatioCol   = list( set( list( numpy.array(ReadArray)[:,-1] ) ) )
+    RatioCol.sort()
+    
+    DataMatrix = numpy.zeros( ( len(RatioCol) + 1 , len(ContextCol) + 1 ))
+    for row in ReadArray:
+        DataMatrix[ int( RatioCol.index(row[-1] ) ) + 1 ][ int( row[2] ) ] = row[-2]
+#         print(row)
+#         print (DataMatrix)
+    DataMatrix[0] = [-1] + ContextCol
+    DataMatrix[:,0] = [-1] + RatioCol
+    print( DataMatrix )
+    CommonFunctions.WriteArrayinFile(DataMatrix, "Draw_IId_Markov.csv")
+    a = 10
+    
+AnalyzeIIDMarkovData( markovTransitionProbab = .9)    
+
+#RestructureData( .1, 'Results_negative1.csv')
 #AnalyseLengthSimData([.9])

@@ -750,7 +750,7 @@ class System:
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 #Decoding the Sequence
                 self.Output.DecodeSequence()
-                self.PrintInformation(Filename="IIDMarkovResults_"+os.name+".csv")
+                self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
 #         groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #         self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #         self.AnalyzeContextGroupInfo( self.GroupInfo )
