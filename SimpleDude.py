@@ -546,6 +546,7 @@ class DUDEOutputSequence( OutputSequence ):
         return( minPenalty[ "letter"])
 
 class System:
+    CoverageDepth = 1
     wrongSymbolLoss = 10
     rightSymbolLoss = 0.01
     LossFunction = OrderedDict ( 
@@ -604,9 +605,9 @@ class System:
         print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) ))
         fractionOfChanges = float( sum( z3 ) )/float( sum( z1 ) )
         fractionOfChanges = float("{0:.3f}".format( fractionOfChanges ) )
-        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "Ratio"] 
+        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "Coverage Depth", "Ratio"] 
         RowstoWrite =  [ Heading ]  
-        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) +1 ) ) ), self.IIDMarkovRatio ]]
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) +1 ) ) ), self.CoverageDepth, self.IIDMarkovRatio ]]
          
         try:
             # copying data from the exiting file
@@ -734,15 +735,13 @@ class System:
         #Get the input
         FirstInput = ReadInputFromFile( filename )
         #Get Reads and combine the reads
-        for i in range( 100, 1000,100 ):
-            CoverageDepth = i*5
-            self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = CoverageDepth)
+        for i in range( 100, 500, 50 ):
+            self.CoverageDepth = i*5
+            self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
-            a= input("Nter SOMETHING!!!!!!!!!!!!!!")
-
             for CL in range(self.ContextLengthMin, self.ContextLengthMax):
                 self.ContextLength = CL       # Creating the output class
-                print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", CoverageDepth)
+                print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 self.PrintInformation( Filename=outputfile )
                 self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
