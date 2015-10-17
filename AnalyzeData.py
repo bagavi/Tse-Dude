@@ -4,7 +4,6 @@ import CommonFunctions
 from IIDMarkov import markovTransitionProbab
 
 
-
 def AnalyseLengthSimData(ProbRange = [ .9 ]):
     ReadArray = CommonFunctions.FiletoArray('Results_length.csv', Int=True)
     """

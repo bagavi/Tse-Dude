@@ -11,6 +11,7 @@ from CommonFunctions import *
 import math, collections
 from Bio import SeqIO
 
+
 """
     Generic Sequence Class. Defines generic functions on sequences
 """
