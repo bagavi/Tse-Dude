@@ -48,7 +48,5 @@ def AnalyseLengthSimData(ProbRange = [ .9 ]):
     CommonFunctions.WriteArrayinFile(MergedArray, "Test.csv")
     a = 10
     
-  
 
-RestructureData( .1, 'Results_test.csv')
-#AnalyseLengthSimData([.9])
+AnalyseLengthSimData([.9])

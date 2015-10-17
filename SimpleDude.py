@@ -734,11 +734,12 @@ class System:
         #Get the input
         FirstInput = ReadInputFromFile( filename )
         #Get Reads and combine the reads
-        CoverageDepth = 10
-        self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = CoverageDepth)
-        Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
-        for CL in range(self.ContextLengthMin, self.ContextLengthMax):
-            self.ContextLength = CL       # Creating the output class
-            print( "Context Length", CL, "Length", self.SequenceLength )
-            self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
-            self.PrintInformation( Filename=outputfile )
+        for i in range( 1, 10 ):
+            CoverageDepth = i*5
+            self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = CoverageDepth)
+            Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+            for CL in range(self.ContextLengthMin, self.ContextLengthMax):
+                self.ContextLength = CL       # Creating the output class
+                print( "Context Length", CL, "Length", self.SequenceLength, "Covereage Depth", CoverageDepth)
+                self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+                self.PrintInformation( Filename=outputfile )
