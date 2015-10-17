@@ -743,3 +743,5 @@ class System:
                 print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", CoverageDepth)
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 self.PrintInformation( Filename=outputfile )
+                self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
+                AnalyzeContextGroupInfo( self.GroupInfo)
