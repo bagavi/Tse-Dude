@@ -734,11 +734,12 @@ class System:
         #Get the input
         FirstInput = ReadInputFromFile( filename )
         #Get Reads and combine the reads
-        a= input("Nter SOMETHING!!!!!!!!!!!!!!")
-        for i in range( 100, 1000 ):
+        for i in range( 100, 1000,100 ):
             CoverageDepth = i*5
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+            a= input("Nter SOMETHING!!!!!!!!!!!!!!")
+
             for CL in range(self.ContextLengthMin, self.ContextLengthMax):
                 self.ContextLength = CL       # Creating the output class
                 print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", CoverageDepth)
