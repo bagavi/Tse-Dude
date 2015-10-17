@@ -735,7 +735,7 @@ class System:
         #Get the input
         FirstInput = ReadInputFromFile( filename )
         #Get Reads and combine the reads
-        for i in range( 100, 500, 50 ):
+        for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
             self.CoverageDepth = i*5
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
