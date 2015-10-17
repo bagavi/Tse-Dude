@@ -313,7 +313,7 @@ class ReadsInput( InputSequence ):
         self.InputSequence = InputSequence
         self.Alphabet = InputSequence.Alphabet
         self.ReadSize = ReadSize
-        self.NumberofReads = math.ceil( len( self.InputSequence.Sequence )*CoverageDepth / self.ReadSize )
+        self.NumberofReads = int( math.ceil( len( self.InputSequence.Sequence )*CoverageDepth / self.ReadSize ) )
         self.Sequence = []
         self.GenerateReads()
         a = 10
