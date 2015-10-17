@@ -8,7 +8,7 @@
 
 from abc import ABCMeta, abstractmethod
 from CommonFunctions import *
-import math
+import math, collections
 from Bio import SeqIO
 
 """
@@ -59,6 +59,7 @@ class InputSequence( Sequence ):
     
     def InitializeSequence(self, Sequence ):
         self.Sequence = Sequence
+
 """
     Generic OutputSequence (Decoder) class
 """
@@ -150,10 +151,13 @@ class ReadInputFromFile( InputSequence ):
     def GenerateSequence(self):
         handle = open(self.filename)
         for seq_record in SeqIO.parse( handle, "fasta"):
-            print( seq_record.id )
-            self.Sequence += str(seq_record.seq)
+            print( seq_record.id )    
+            self.Sequence += str(  seq_record.seq )
+        self.Sequence = list(filter( ('R').__ne__, self.Sequence ) )
         self.Alphabet = list( set( self.Sequence ) )
-
+        
+        # REMOVE THIS
+        self.Sequence = self.Sequence[:10000]
 
 class MarkovModelSequence( InputSequence ):
     
@@ -267,7 +271,7 @@ class DiscreteMemoryChannel( Channel ):
     
     def CorruptSignal(self):
         print( "Corrupting signal :P. Stop me if you can" )
-        Sequence = self.InputSequence.getSequence()
+        Sequence = self.InputSequence.Sequence
         OutputSequence = [ ]
         self.Changes = { 'A': 0, 'C': 0, 'T':0, 'G':0 }
         #print( Sequence )
@@ -299,28 +303,27 @@ class DiscreteMemoryChannel( Channel ):
         return self.InputSequence.Alphabet
 
 
-class Reads():    
+class ReadsInput( InputSequence ):
     
     #Array of InputSequences
     Reads = []
     
-    def __init__(self, Sequence, ReadLength, CoverageDepth = 5):
-        self.Sequence = Sequence
-        self.ReadLength = ReadLength
-        self.NumberofReads = math.ceil( self.Sequence.getLength()*CoverageDepth / CoverageDepth )
+    def __init__(self, InputSequence, ReadSize, CoverageDepth = 5):
+        self.InputSequence = InputSequence
+        self.Alphabet = InputSequence.Alphabet
+        self.ReadSize = ReadSize
+        self.NumberofReads = math.ceil( len( self.InputSequence.Sequence )*CoverageDepth / self.ReadSize )
+        self.Sequence = []
+        self.GenerateReads()
+        a = 10
     
     def GenerateReads(self):
+        Sequence = []
         for i in range( self.NumberofReads ):
-            RandomIndex = random.randint( 0, self.Sequence.getLength() )
-            SingleRead = self.Sequence.getSequence()[ RandomIndex: RandomIndex + self.ReadLength ]
-            SingleReadSequence = InputSequence()
-            SingleReadSequence.InitializeSequence(SingleRead)
-            
-            Channel = DiscreteMemoryChannel( self.Single, self.TransitionDictionary )
-
-            OutputSingleReadSequence = 1
-            Reads += [ SingleReadSequence ]
-
+            RandomIndex = random.randint( 0, len( self.InputSequence.Sequence ) )
+            SingleRead = self.InputSequence.Sequence[ RandomIndex: RandomIndex + self.ReadSize ]
+            self.Sequence += SingleRead
+        
 """
     Implements DUDE on DMC
 """
@@ -415,7 +418,8 @@ class DUDEOutputSequence( OutputSequence ):
             # Fraction of context with z_1to_K + letter + z1toK
             M[ letter ]=  self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  )
 #             print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
-        
+        if len(M) > 4:
+            pass
         mT_Pi_inv = numpy.array( list( M.values() ) ).dot( self.InvTransitionMatrix )
         minPenalty = { "letter": None, "value": numpy.Infinity }
         for letter in self.Alphabet:
@@ -573,7 +577,7 @@ class System:
         self.Alphabet =  list( self.TransitionDictionary.keys() )
                 
     def PrintInformation(self, Filename = 'Results_'+os.name+'.csv'):
-
+        self.r1 = -1 #BAD CODE
         print( "Instance Number", self.NumberOfInstances)
         print( "Flip probability of DMC ", self.p)
 #         print( "Dude Loss dictionary", self.LossFunction)
@@ -632,7 +636,7 @@ class System:
         
     def Markov(self):
         #Looping Over Markov Transition Probabilities
-        for markovTransitionProbab in numpy.arange(0.4,1,.05):
+        for markovTransitionProbab in numpy.arange(0.05,1,.05):
             self.TransitionDic(markovTransitionProbab)
             self.Input = MarkovModelSequence( self.Alphabet, self.SequenceLength, self.MarkovTransitionDictionary, self.ChainWeight)
             # Creating the channel class
@@ -724,6 +728,16 @@ class System:
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
 
-    def ReadSimulation(self, filename, outputfile = "Results_reads_simulation__"+os.name+".csv"):
+    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "Results_reads_simulation__"+os.name+".csv"):
         
-        self.Input = ReadInputFromFile( filename )
+        #Get the input
+        FirstInput = ReadInputFromFile( filename )
+        #Get Reads and combine the reads
+        CoverageDepth = 10
+        self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = CoverageDepth)
+        Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+        for CL in range(self.ContextLengthMin, self.ContextLengthMax):
+            self.ContextLength = CL       # Creating the output class
+            print( "Context Length", CL, "Length", self.SequenceLength )
+            self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
+            self.PrintInformation( Filename=outputfile )

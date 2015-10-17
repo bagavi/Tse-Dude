@@ -28,6 +28,6 @@ else:
 
 shouldIprint =  lambda x, y: False
 
-Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax , MarkovSequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=shouldIprint)
+Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax , SequenceLength=SequenceLength, flipProbab=flipProbab, shouldIprint=shouldIprint)
 Obj.Markov()
 print( "total execution time", time.time() - StartTime)
