@@ -727,7 +727,7 @@ class System:
                 self.ContextLength = CL       # Creating the output class
                 print( "\n\nRATIO === ", ratio, "Context Length", CL, "Length", self.SequenceLength )
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
-                self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
+                self.PrinltInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
 
     def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "Results_reads_simulation__"+os.name+".csv"):
         
@@ -740,6 +740,6 @@ class System:
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
             for CL in range(self.ContextLengthMin, self.ContextLengthMax):
                 self.ContextLength = CL       # Creating the output class
-                print( "Context Length", CL, "Length", self.SequenceLength, "Covereage Depth", CoverageDepth)
+                print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", CoverageDepth)
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 self.PrintInformation( Filename=outputfile )
