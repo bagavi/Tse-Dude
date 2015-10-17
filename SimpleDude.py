@@ -158,7 +158,7 @@ class ReadInputFromFile( InputSequence ):
         self.Alphabet = list( set( self.Sequence ) )
         
         # REMOVE THIS
-        self.Sequence = self.Sequence[:10000]
+        self.Sequence = self.Sequence[:50]
 
 class MarkovModelSequence( InputSequence ):
     
@@ -734,7 +734,8 @@ class System:
         #Get the input
         FirstInput = ReadInputFromFile( filename )
         #Get Reads and combine the reads
-        for i in range( 1, 10 ):
+        a= input("Nter SOMETHING!!!!!!!!!!!!!!")
+        for i in range( 100, 1000 ):
             CoverageDepth = i*5
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )

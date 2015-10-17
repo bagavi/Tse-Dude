@@ -91,8 +91,8 @@ def AnalyzeContextGroupInfo( Dict ):
         Ratios = Ratios[::-1]
         print( "FEW STATS")
         aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-2))
-        print(  "Good std til 10", aa,"Length",len(Ratios))
+        print(  "Good std til 2", aa,"Length",len(Ratios))
     
         aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-5))
 #        print( Ratios[ 0: aa ])
-        print(  "Good std till 13", aa,"Length",len(Ratios))        
+        print(  "Good std till 5", aa,"Length",len(Ratios))        
