@@ -158,7 +158,7 @@ class ReadInputFromFile( InputSequence ):
         self.Alphabet = list( set( self.Sequence ) )
         
         # REMOVE THIS
-        self.Sequence = self.Sequence[:50]
+        self.Sequence = self.Sequence[:500]
 
 class MarkovModelSequence( InputSequence ):
     
