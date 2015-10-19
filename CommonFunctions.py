@@ -1,6 +1,7 @@
 import random
 import numpy, csv, os
 from collections import OrderedDict
+import SimpleDude
 
 def CdfFromPdf( Pdf ):
     Cdf = [ Pdf[0] ]
@@ -95,4 +96,63 @@ def AnalyzeContextGroupInfo( Dict ):
     
         aa = min(range(len(Ratios)), key=lambda i: abs(Ratios[i]-5))
 #        print( Ratios[ 0: aa ])
-        print(  "Good std till 5", aa,"Length",len(Ratios))        
+        print(  "Good std till 5", aa,"Length",len(Ratios))  
+        
+def MaximumApperences( Array  ):      
+    InputSequence = Array[0].InputSequence.Sequence
+    SequenceLength = len( InputSequence )
+    FinalOutputSequence = [ None ]*SequenceLength
+    ArrayOfOutputSequence = [] 
+    
+    for output in Array:
+        ArrayOfOutputSequence += [ output.Sequence ]
+    
+    ArrayOfOutputSequence = numpy.array(ArrayOfOutputSequence)
+    for index in range( SequenceLength ):
+        Column = list( ArrayOfOutputSequence[:,index ])
+        FinalOutputSequence[index] = max( Column, key = Column.count)
+    
+    return(FinalOutputSequence)
+
+def VariableContext( Array  ):      
+    InputSequence = Array[0].InputSequence.Sequence
+    ReceivedSequence = Array[0].ReceivedSequence
+    SequenceLength = len( InputSequence )
+    FinalOutputSequence = [ None ]*SequenceLength
+    ArrayOfOutputSequence = [] 
+    GoodEdit = 0
+    BadEdit = 0
+    for output in Array:
+        ArrayOfOutputSequence += [ output.Sequence ]
+    
+    ArrayOfOutputSequence = numpy.array(ArrayOfOutputSequence)
+    
+    for index in range( SequenceLength ):
+        Column = list( ArrayOfOutputSequence[:,index ])
+        ReceivedSymbol = ReceivedSequence[ index ]
+        
+        # Remove the recieved symbol
+        TruncatedColumn = list( filter( (ReceivedSymbol ).__ne__, Column ))
+        InputSymbol = InputSequence[index]
+        # Return received symbol if that was the only symbol which received
+        if len( TruncatedColumn ) == 0:
+            FinalOutputSequence[index] = ReceivedSequence       
+        else:
+            
+            OutputSymbol = max( Column, key = Column.count)
+            FinalOutputSequence[index] = OutputSymbol
+            
+            # Other context lengths corrects the min context length output
+            if( InputSymbol == OutputSymbol and InputSymbol != Column[0] ):
+#                 print (" Corrected " )
+#                 print ( index, ":", Column, "Input = ",InputSymbol, "Recevied=", ReceivedSymbol, "output =", OutputSymbol )
+                GoodEdit += 1
+            elif( InputSymbol != OutputSymbol and InputSymbol == Column[0] ):
+#                 print ("Wronged" )
+#                 print ( index, ":", Column, "Input = ",InputSymbol, "Recevied=", ReceivedSymbol, "output =", OutputSymbol )
+                BadEdit += 1
+    print( "Goodedits", GoodEdit, " BadEdits", BadEdit)
+    a = input("ENYER SOMething")
+    a = 10
+    
+    return(FinalOutputSequence)
