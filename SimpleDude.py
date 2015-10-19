@@ -718,7 +718,7 @@ class System:
     def IIDMarkov(self, markovTransitionProbab):
         self.TransitionDic(markovTransitionProbab)
 #
-        for ratio in numpy.arange(.2,.4,.01):
+        for ratio in numpy.arange(.4,1,.02):
             self.IIDMarkovRatio = ratio
             self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.SequenceLength, self.MarkovTransitionDictionary )
             # Creating the channel class
