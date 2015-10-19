@@ -560,7 +560,7 @@ class System:
     ChainWeight = [1]
     ContextLength = 3
     IIDMarkovRatio = -1
-    
+    Output = []    
     def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, SequenceLength = 10000, flipProbab = .9, shouldIprint = False):
         self.ContextLengthMin = ContextLengthMin
         self.ContextLengthMax = ContextLengthMax
@@ -625,6 +625,8 @@ class System:
             writer = csv.writer(f)                                                       
             writer.writerows(RowstoWrite)
         f.close()
+        
+        return( float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) +1 ) ) ) )
         
     def TransitionDic(self, markovTransitionProbab ):
         self.r1 = markovTransitionProbab
@@ -716,9 +718,12 @@ class System:
 
 
     def IIDMarkov(self, markovTransitionProbab):
+        
         self.TransitionDic(markovTransitionProbab)
 #
-        for ratio in numpy.arange(0,.2,.01):
+        for ratio in numpy.arange(.6,.8,.1):
+            Error = []
+            ListOfOutputs = []
             self.IIDMarkovRatio = ratio
             self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.SequenceLength, self.MarkovTransitionDictionary )
             # Creating the channel class
@@ -728,8 +733,22 @@ class System:
                 self.ContextLength = CL       # Creating the output class
                 print( "\n\nRATIO === ", ratio, "Context Length", CL, "Length", self.SequenceLength )
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
-                self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
-
+                ListOfOutputs += [ self.Output ]
+                Error += [ self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv") ]
+            print( "OUTPUTS")
+            for i in range( len( ListOfOutputs ) ):
+                print (Error[i],"   ", ListOfOutputs[i].Sequence)
+            print( "INPUT" )
+            print (self.Input.Sequence)
+            
+            print( "Final output")
+            OutputMLE = VariableContext(ListOfOutputs)
+            print( OutputMLE )
+            #VERY BAD CODE
+            self.Output.Sequence = OutputMLE
+            self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
+            a = 10
+            
     def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "Results_reads_simulation__"+os.name+".csv"):
         
         #Get the input
