@@ -26,11 +26,10 @@ else:
 
 
 
-Ratio = .7
-markovTransitionProbab = .75
+markovTransitionProbab = .9
 shouldIprint =  lambda x, y: False
 
-Obj = SimpleDude.System( MarkovSequenceLength = SequenceLength, ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
+Obj = SimpleDude.System( SequenceLength = SequenceLength, ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint = shouldIprint)
 Obj.IIDMarkov(markovTransitionProbab)
 
 print( "total execution time", time.time() - StartTime)
