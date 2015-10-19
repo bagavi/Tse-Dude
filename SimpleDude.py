@@ -721,7 +721,7 @@ class System:
         
         self.TransitionDic(markovTransitionProbab)
 #
-        for ratio in numpy.arange(.6,.8,.1):
+        for ratio in numpy.arange(.4,.8,.1):
             Error = []
             ListOfOutputs = []
             self.IIDMarkovRatio = ratio
@@ -734,19 +734,19 @@ class System:
                 print( "\n\nRATIO === ", ratio, "Context Length", CL, "Length", self.SequenceLength )
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 ListOfOutputs += [ self.Output ]
-                Error += [ self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv") ]
-            print( "OUTPUTS")
-            for i in range( len( ListOfOutputs ) ):
-                print (Error[i],"   ", ListOfOutputs[i].Sequence)
-            print( "INPUT" )
-            print (self.Input.Sequence)
-            
-            print( "Final output")
+#                 Error += [ self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv") ]
+#             print( "OUTPUTS")
+#             for i in range( len( ListOfOutputs ) ):
+#                 print (Error[i],"   ", ListOfOutputs[i].Sequence)
+#             print( "INPUT" )
+#             print (self.Input.Sequence)
+#             
+#             print( "Final output")
             OutputMLE = VariableContext(ListOfOutputs)
-            print( OutputMLE )
+#             print( OutputMLE )
             #VERY BAD CODE
             self.Output.Sequence = OutputMLE
-            self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
+            self.PrintInformation(Filename="Edited_ZIIDMarkovResults_"+os.name+".csv")
             a = 10
             
     def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "Results_reads_simulation__"+os.name+".csv"):
