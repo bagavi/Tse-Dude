@@ -602,7 +602,7 @@ class System:
         print( "Number of spoils by the right context", self.Output.SpoiltByContext)
         print( "Number of unchanged", self.Output.Nochangesmade)
         print( "Fraction of changed symbols (w.r.t no of errors)", float( sum( z3 ) )/float( sum( z1 ) + 1))
-        print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) ))
+        print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) + 1 ))
         fractionOfChanges = float( sum( z3 ) )/float( sum( z1 ) )
         fractionOfChanges = float("{0:.3f}".format( fractionOfChanges ) )
         Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "Coverage Depth", "Ratio"] 
