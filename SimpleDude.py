@@ -747,7 +747,8 @@ class System:
             #VERY BAD CODE
             self.Output.Sequence = OutputMLE
             self.PrintInformation(Filename="Edited_ZIIDMarkovResults_"+os.name+".csv")
-            a = 10
+            WriteArrayinFile([OutputMLE, self.Input.Sequence , ListOfOutputs[0].Sequence  ] , "Edit_test.csv")
+            a = input("ENYER SOMething")
             
     def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "Results_reads_simulation__"+os.name+".csv"):
         

@@ -5,7 +5,7 @@ StartTime = time.time()
 if len( sys.argv )> 1 :
     SequenceLength = int( float( sys.argv[1] ) )
 else:
-    SequenceLength = int( 1e5 )
+    SequenceLength = int( 1e2 )
 
 if len( sys.argv )> 2 :
     flipProbab = float( sys.argv[2] )

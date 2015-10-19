@@ -136,10 +136,10 @@ def VariableContext( Array  ):
         InputSymbol = InputSequence[index]
         # Return received symbol if that was the only symbol which received
         if len( TruncatedColumn ) == 0:
-            FinalOutputSequence[index] = ReceivedSequence       
+            FinalOutputSequence[index] = ReceivedSymbol      
         else:
             
-            OutputSymbol = max( Column, key = Column.count)
+            OutputSymbol = max( Column, key = Column.count )
             FinalOutputSequence[index] = OutputSymbol
             
             # Other context lengths corrects the min context length output
@@ -152,7 +152,5 @@ def VariableContext( Array  ):
 #                 print ( index, ":", Column, "Input = ",InputSymbol, "Recevied=", ReceivedSymbol, "output =", OutputSymbol )
                 BadEdit += 1
     print( "Goodedits", GoodEdit, " BadEdits", BadEdit)
-    a = input("ENYER SOMething")
-    a = 10
     
     return(FinalOutputSequence)
