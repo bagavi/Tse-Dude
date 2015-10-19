@@ -1,6 +1,4 @@
 InputSequence Length,Channel Flip Prob,Context Length,Markov Transition Probabilities,No. of Errors,No of changes by DUDE,Number of right changes,fraction of changes,fraction of right changes,Coverage Depth,Ratio
-<<<<<<< HEAD
-=======
 100000,0.01,7,-1.0,983,182,122,0.185,0.124,1,0.39000000000000018
 100000,0.01,6,-1.0,983,228,159,0.232,0.162,1,0.39000000000000018
 100000,0.01,5,-1.0,983,266,179,0.271,0.182,1,0.39000000000000018
@@ -161,7 +159,6 @@ InputSequence Length,Channel Flip Prob,Context Length,Markov Transition Probabil
 100000,0.01,2,-1.0,964,0,0,0.0,0.0,1,0.20000000000000001
 100000,0.01,1,-1.0,964,0,0,0.0,0.0,1,0.20000000000000001
 100000,0.01,0,-1.0,964,0,0,0.0,0.0,1,0.20000000000000001
->>>>>>> refs/remotes/origin/master
 100000,0.01,7,-1.0,1007,91,64,0.09,0.063,1,0.19
 100000,0.01,6,-1.0,1007,99,70,0.098,0.069,1,0.19
 100000,0.01,5,-1.0,1007,108,76,0.107,0.075,1,0.19

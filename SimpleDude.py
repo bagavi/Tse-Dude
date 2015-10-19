@@ -721,9 +721,13 @@ class System:
         
         self.TransitionDic(markovTransitionProbab)
 #
+<<<<<<< HEAD
         for ratio in numpy.arange(.6,.8,.1):
             Error = []
             ListOfOutputs = []
+=======
+        for ratio in numpy.arange(.2,.4,.01):
+>>>>>>> refs/remotes/origin/master
             self.IIDMarkovRatio = ratio
             self.Input = IIDandMarkovSequence( self.Alphabet, ratio, self.SequenceLength, self.MarkovTransitionDictionary )
             # Creating the channel class
