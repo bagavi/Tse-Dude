@@ -144,14 +144,15 @@ def VariableContext( Array  ):
             
             # Other context lengths corrects the min context length output
             if( InputSymbol == OutputSymbol and InputSymbol != Column[0] ):
-                print (" Corrected " )
-                print ( index, ":", Column, "Input = ",InputSymbol, "Recevied=", ReceivedSymbol, "output =", OutputSymbol )
+#                 print (" Corrected " )
+#                 print ( index, ":", Column, "Input = ",InputSymbol, "Recevied=", ReceivedSymbol, "output =", OutputSymbol )
                 GoodEdit += 1
             elif( InputSymbol != OutputSymbol and InputSymbol == Column[0] ):
-                print ("Wronged" )
-                print ( index, ":", Column, "Input = ",InputSymbol, "Recevied=", ReceivedSymbol, "output =", OutputSymbol )
+#                 print ("Wronged" )
+#                 print ( index, ":", Column, "Input = ",InputSymbol, "Recevied=", ReceivedSymbol, "output =", OutputSymbol )
                 BadEdit += 1
-        print( "Goodedits", GoodEdit, " BadEdits", BadEdit)
-        a = 10
+    print( "Goodedits", GoodEdit, " BadEdits", BadEdit)
+    a = input("ENYER SOMething")
+    a = 10
     
     return(FinalOutputSequence)
