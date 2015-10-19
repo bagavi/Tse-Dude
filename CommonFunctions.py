@@ -122,6 +122,7 @@ def VariableContext( Array  ):
     ArrayOfOutputSequence = [] 
     GoodEdit = 0
     BadEdit = 0
+    Nochanges = 0
     for output in Array:
         ArrayOfOutputSequence += [ output.Sequence ]
     
@@ -138,7 +139,7 @@ def VariableContext( Array  ):
         if len( TruncatedColumn ) == 0:
             FinalOutputSequence[index] = ReceivedSymbol      
         else:
-            
+            Nochanges += 1
             OutputSymbol = max( Column, key = Column.count )
             FinalOutputSequence[index] = OutputSymbol
             
@@ -153,6 +154,6 @@ def VariableContext( Array  ):
                 BadEdit += 1
             else:
                 pass
-    print( "Goodedits", GoodEdit, " BadEdits", BadEdit)
+    print( "Goodedits", GoodEdit, " BadEdits", BadEdit, "Nochanges", Nochanges)
     a = input("ENTER")
     return(FinalOutputSequence)
