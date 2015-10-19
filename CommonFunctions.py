@@ -151,6 +151,8 @@ def VariableContext( Array  ):
 #                 print ("Wronged" )
 #                 print ( index, ":", Column, "Input = ",InputSymbol, "Recevied=", ReceivedSymbol, "output =", OutputSymbol )
                 BadEdit += 1
+            else:
+                pass
     print( "Goodedits", GoodEdit, " BadEdits", BadEdit)
-    
+    a = input("ENTER")
     return(FinalOutputSequence)
