@@ -728,7 +728,7 @@ class System:
                 self.ContextLength = CL       # Creating the output class
                 print( "\n\nRATIO === ", ratio, "Context Length", CL, "Length", self.SequenceLength )
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
-                self.PrinltInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
+                self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv")
 
     def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "Results_reads_simulation__"+os.name+".csv"):
         
