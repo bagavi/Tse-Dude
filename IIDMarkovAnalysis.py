@@ -1,11 +1,13 @@
 import CommonFunctions, numpy
 
-def AnalyzeIIDMarkovData(markovTransitionProbab = .9):
-    Array = CommonFunctions.FiletoArray('ZIIDMarkovResults_posix.05.csv', Int=True)
+def AnalyzeIIDMarkovData(markovTransitionProbab = -1):
+    Array = CommonFunctions.FiletoArray('Results_reads_simulation__posix.csv', Int=True)
     ReadArray = []
     for row in Array:
         if row[3] == markovTransitionProbab:
             ReadArray += [row]
+        else:
+            pass
     ReadArray.sort( key = lambda x: [ x[2] , x[-1]])
     ContextCol = list( set( list( numpy.array(ReadArray)[:,2] ) ) )
     ContextCol.sort()
@@ -14,7 +16,7 @@ def AnalyzeIIDMarkovData(markovTransitionProbab = .9):
     
     DataMatrix = numpy.zeros( ( len(RatioCol) + 1 , len(ContextCol) + 1 ))
     for row in ReadArray:
-        DataMatrix[ int( RatioCol.index(row[-1] ) ) + 1 ][ int( row[2] ) ] = row[-2]
+        DataMatrix[ int( RatioCol.index(row[-1] ) ) + 1 ][ int( ContextCol.index( row[2]  ) ) + 1 ] = row[-2]
 #         print(row)
 #         print (DataMatrix)
     DataMatrix[0] = [-1] + ContextCol
@@ -23,4 +25,4 @@ def AnalyzeIIDMarkovData(markovTransitionProbab = .9):
     CommonFunctions.WriteArrayinFile(DataMatrix, "Draw_IId_Markov.csv")
     print( "DONE")
     
-AnalyzeIIDMarkovData( markovTransitionProbab = .97)    
+AnalyzeIIDMarkovData( markovTransitionProbab = -1)    

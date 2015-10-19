@@ -8,14 +8,10 @@ def AnalyseLengthSimData(ProbRange = [ .9 ]):
     ReadArray = CommonFunctions.FiletoArray('Results_length.csv', Int=True)
     """
     Sorting Order
-    
     !)Length
     2)Error Probab
     3)MarkovTransitionProbab
-    
     """
-    
-    
     for row in ReadArray:
         row[1] = int( math.ceil(row[1]*10 ))
         row[2] = int( math.ceil(row[2]*10 ))
