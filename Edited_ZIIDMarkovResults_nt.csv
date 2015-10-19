@@ -1,0 +1,8 @@
+InputSequence Length,Channel Flip Prob,Context Length,Markov Transition Probabilities,No. of Errors,No of changes by DUDE,Number of right changes,fraction of changes,fraction of right changes,Coverage Depth,Ratio
+1000,0.1,5,-1.0,91,21,2,0.231,0.022,1,0.7
+1000,0.1,5,-1.0,87,15,3,0.172,0.034,1,0.6
+1000,0.1,5,-1.0,85,10,4,0.118,0.047,1,0.5
+1000,0.1,5,-1.0,130,7,4,0.054,0.031,1,0.4
+1000,0.1,5,-1.0,98,3,0,0.031,0.0,1,0.4
+100,0.1,5,-1.0,8,100,0,12.5,0.0,1,0.4
+100,0.1,5,-1.0,9,100,0,11.111,0.0,1,0.4
