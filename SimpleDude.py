@@ -734,7 +734,7 @@ class System:
                 print( "\n\nRATIO === ", ratio, "Context Length", CL, "Length", self.SequenceLength )
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 ListOfOutputs += [ self.Output ]
-#                 Error += [ self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv") ]
+                Error += [ self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv") ]
 #             print( "OUTPUTS")
 #             for i in range( len( ListOfOutputs ) ):
 #                 print (Error[i],"   ", ListOfOutputs[i].Sequence)
