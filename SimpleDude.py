@@ -158,7 +158,7 @@ class ReadInputFromFile( InputSequence ):
         self.Alphabet = list( set( self.Sequence ) )
         
         # REMOVE THIS
-        self.Sequence = self.Sequence[:100000]
+        self.Sequence = self.Sequence[:200]
 
 class MarkovModelSequence( InputSequence ):
     
@@ -260,15 +260,15 @@ class BlockwiseIndependentSequence( InputSequence ):
     Implements a DiscreteMemeoryChannel
 """
 class DiscreteMemoryChannel( Channel ):
-    
-    TransitionDictionary = dict()
-    
+        
     def __init__(self, InputSequence, TransitionDictionary ):
         #Check if the dictionary is correct
         self.TransitionDictionary = TransitionDictionary
         self.InputSequence = InputSequence
         self.CorruptSignal()
     
+    def setTransitionDictionary(self, TransitionDictionary):
+        self.TransitionDictionary = TransitionDictionary
     
     def CorruptSignal(self):
         print( "Corrupting signal :P. Stop me if you can" )
@@ -576,6 +576,14 @@ class System:
                                  'T' : OrderedDict( {'A':p/3, 'G':p/3, 'T':1-p, 'C':p/3} ),
                                  'C' : OrderedDict( {'A':p/3, 'G':p/3, 'T':p/3, 'C':1-p} )
                                 } )
+        
+        self.FakeTransitionDictionary = OrderedDict( { 
+                                 'A' : OrderedDict( {'A':1, 'G':1, 'T':1, 'C':1} ),
+                                 'G' : OrderedDict( {'A':1, 'G':1, 'T':1, 'C':1} ),
+                                 'T' : OrderedDict( {'A':1, 'G':1, 'T':1, 'C':1} ),
+                                 'C' : OrderedDict( {'A':1, 'G':1, 'T':1, 'C':1} )
+                                } )
+    
         self.Alphabet =  list( self.TransitionDictionary.keys() )
                 
     def PrintInformation(self, Filename = 'Results_'+os.name+'.csv'):
@@ -735,13 +743,7 @@ class System:
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 ListOfOutputs += [ self.Output ]
                 Error += [ self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv") ]
-#             print( "OUTPUTS")
-#             for i in range( len( ListOfOutputs ) ):
-#                 print (Error[i],"   ", ListOfOutputs[i].Sequence)
-#             print( "INPUT" )
-#             print (self.Input.Sequence)
-#             
-#             print( "Final output")
+
             OutputMLE = VariableContext(ListOfOutputs)
 #             print( OutputMLE )
             #VERY BAD CODE
@@ -749,7 +751,7 @@ class System:
             self.PrintInformation(Filename="Edited_ZIIDMarkovResults_"+os.name+".csv")
             WriteArrayinFile([OutputMLE, self.Input.Sequence , ListOfOutputs[0].Sequence  ] , "Edit_test.csv")
             
-    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "Results_reads_simulation__"+os.name+".csv"):
+    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "FakeResults_reads_simulation__"+os.name+".csv"):
         
         #Get the input
         # Input from Dna
@@ -761,6 +763,7 @@ class System:
             self.CoverageDepth = int( i )
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+            Channel.setTransitionDictionary( self.FakeTransitionDictionary )
             for CL in range(self.ContextLengthMin, self.ContextLengthMax):
                 self.ContextLength = CL       # Creating the output class
                 print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
