@@ -158,7 +158,7 @@ class ReadInputFromFile( InputSequence ):
         self.Alphabet = list( set( self.Sequence ) )
         
         # REMOVE THIS
-        self.Sequence = self.Sequence[:200]
+        self.Sequence = self.Sequence[:100000]
 
 class MarkovModelSequence( InputSequence ):
     
@@ -361,7 +361,11 @@ class DUDEOutputSequence( OutputSequence ):
         TransitionDictionary = Channel.getTransitionDict()
         self.TransitionDictionaryKeyMap = dict( zip( TransitionDictionary.keys(), range(0 , len(TransitionDictionary.keys()))))
         self.TransitionMatrix = MatrixFromDict( TransitionDictionary )
-        self.InvTransitionMatrix = InverseMatrix( self.TransitionMatrix )
+        try:
+            self.InvTransitionMatrix = InverseMatrix( self.TransitionMatrix )
+        except:
+            self.InvTransitionMatrix = self.TransitionMatrix #BAD CODE - Only when i want to give equal weightage to all contexts..i
+                                                             #irrespective of their prior
         
         #Loss Function
         self.LossFunction = LossFunction
