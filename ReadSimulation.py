@@ -4,18 +4,18 @@ StartTime = time.time()
 if len( sys.argv )> 1 :
     flipProbab = float( sys.argv[1] )
 else:
-    flipProbab = 0.1
+    flipProbab = 0.02
 
 if len( sys.argv )> 2:
     ContextLengthMin = int( sys.argv[2] )
 else:
-    ContextLengthMin = 1
+    ContextLengthMin = 3
 
 
 if len( sys.argv )> 3:
     ContextLengthMax = int( sys.argv[3] )
 else:
-    ContextLengthMax = 20
+    ContextLengthMax = 10
     
 
 if len( sys.argv )> 4:

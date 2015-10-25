@@ -407,6 +407,7 @@ class DUDEOutputSequence( OutputSequence ):
             if i%self.passlimit == 0:
                 print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
             self.Sequence[ i ] = self.__getTrueFakeSymbol( i ) #BAD CODE
+        
     
     def __getTrueFakeSymbol(self, positionI):
         z_i = self.ReceivedSequence[ positionI ]
@@ -419,10 +420,30 @@ class DUDEOutputSequence( OutputSequence ):
         
         Max = 0
         Maxletter = None
+#         print("True ->", self.InputSequence.Sequence[ positionI ],"   Received-->", z_i)
+#         print( "Recevied", z_1to_K , " ",[ z_i], " ", z1toK, " -- > ", self.__getDictProbabilites(  z_1to_K + [ z_i ] + z1toK  ) )
+#         print("\n\n")
         for letter in self.Alphabet:
-            if Max < self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  ):
-                Max = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  )
+#             prints(z_1to_K , " ",[ letter ], " ", z1toK, " -- > ", self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  ) )
+        
+            if Max < self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK ):
+                Max = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )
                 Maxletter = letter
+        
+        if Maxletter == self.InputSequence.Sequence[positionI] and Maxletter != z_i:
+            self.CorrectedByContext += 1
+            
+        if z_i == self.InputSequence.Sequence[positionI] and Maxletter != z_i:
+            if( self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and
+                self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK  ): 
+                    # implies that the context was right 
+                self.SpoiltByContext += 1
+            else:
+                self.SpolitByWrongContext += 1
+        #Debugging
+#         if Maxletter != self.InputSequence.Sequence[positionI]:
+#             print( positionI, "Sent", Maxletter)
+#             pass
         return( Maxletter )
 
     def __getTrueSymbol(self, positionI):
@@ -778,7 +799,7 @@ class System:
         #Get the input
         # Input from Dna
         # FirstInput = ReadInputFromFile( filename )
-        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 20000, [.25]*4, Null = 0 ,)
+        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 10000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
 #         for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
         for i in numpy.arange( 5, 50, 5 ):
@@ -786,10 +807,11 @@ class System:
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
             Channel.setTransitionDictionary( self.FakeTransitionDictionary )
-            for CL in range(self.ContextLengthMin, self.ContextLengthMax, 2):
+            for CL in range(self.ContextLengthMin, self.ContextLengthMax, 1):
                 self.ContextLength = CL       # Creating the output class
                 print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 self.PrintInformation( Filename=outputfile )
+                enter = input("ENTER SOMETHING")
                 self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #                AnalyzeContextGroupInfo( self.GroupInfo )
