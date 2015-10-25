@@ -769,7 +769,7 @@ class System:
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
             Channel.setTransitionDictionary( self.FakeTransitionDictionary )
-            for CL in range(self.ContextLengthMin, self.ContextLengthMax):
+            for CL in range(self.ContextLengthMin, self.ContextLengthMax, 5):
                 self.ContextLength = CL       # Creating the output class
                 print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
