@@ -324,7 +324,8 @@ class ReadsInput( InputSequence ):
             RandomIndex = random.randint( 0, len( self.InputSequence.Sequence ) )
             SingleRead = self.InputSequence.Sequence[ RandomIndex: RandomIndex + self.ReadSize ]
             self.Sequence += SingleRead
-        
+
+
 """
     Implements DUDE on DMC
 """
@@ -760,7 +761,7 @@ class System:
         #Get the input
         # Input from Dna
         # FirstInput = ReadInputFromFile( filename )
-        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 2000, [.25]*4, Null = 0 ,)
+        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 100000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
 #         for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
         for i in numpy.arange( 5, 50, 5 ):
