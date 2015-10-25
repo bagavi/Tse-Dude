@@ -15,7 +15,7 @@ else:
 if len( sys.argv )> 3:
     ContextLengthMax = int( sys.argv[3] )
 else:
-    ContextLengthMax = 6
+    ContextLengthMax = 20
     
 
 if len( sys.argv )> 4:
@@ -29,7 +29,7 @@ filename = '../original/genome_data.fasta'
 ReadLength = 100
 
 
-shouldIprint =  lambda x, y: False
+shouldIprint =  lambda x, y: True
 
 Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint=shouldIprint)
 Obj.ReadSimulation( filename, ReadLength = ReadLength )

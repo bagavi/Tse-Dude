@@ -406,7 +406,24 @@ class DUDEOutputSequence( OutputSequence ):
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
             if i%self.passlimit == 0:
                 print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
-            self.Sequence[ i ] = self.__getTrueSymbol( i )
+            self.Sequence[ i ] = self.__getTrueFakeSymbol( i ) #BAD CODE
+    
+    def __getTrueFakeSymbol(self, positionI):
+        z_i = self.ReceivedSequence[ positionI ]
+        if z_i not in self.Alphabet:
+            pass
+        #If the alphabet is not among ACGT, we dont "correct" it
+        # Initializing pre and post context sequence variables
+        z_1to_K = self.ReceivedSequence[ positionI - self.ContextLength  : positionI  ]
+        z1toK = self.ReceivedSequence[ positionI + 1 : positionI + self.ContextLength + 1 ]
+        
+        Max = 0
+        Maxletter = None
+        for letter in self.Alphabet:
+            if Max < self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  ):
+                Max = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  )
+                Maxletter = letter
+        return( Maxletter )
 
     def __getTrueSymbol(self, positionI):
         z_i = self.ReceivedSequence[ positionI ]
@@ -492,7 +509,7 @@ class DUDEOutputSequence( OutputSequence ):
             if os.name == "posix":  
                  Enter = str( input("Enter something!!") )               
 
-        elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] and False ):
+        elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
             print("##################################################################################################")
             print( "!!!!!!!!!!, the algorithm did the right thing ", z_i, "to ", minPenalty[ "letter" ] )
             print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
@@ -508,7 +525,7 @@ class DUDEOutputSequence( OutputSequence ):
 
         elif ( minPenalty[ "letter" ] != self.InputSequence.Sequence [ positionI ] and self.shouldIprint  and 
                 self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
-                self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK and False):
+                self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK):
             print( positionI, "  !!!!!!!!!!, No change by the algo",  ". Our algo =", minPenalty[ "letter" ], "Received letter", z_i)
             print( "I:        ", self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI + self.ContextLength + 1 ], )
             print( "Context = ", z_1to_K ," * ", z1toK)
@@ -761,7 +778,7 @@ class System:
         #Get the input
         # Input from Dna
         # FirstInput = ReadInputFromFile( filename )
-        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 10000, [.25]*4, Null = 0 ,)
+        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
 #         for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
         for i in numpy.arange( 5, 50, 5 ):
@@ -769,7 +786,7 @@ class System:
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
             Channel.setTransitionDictionary( self.FakeTransitionDictionary )
-            for CL in range(self.ContextLengthMin, self.ContextLengthMax, 5):
+            for CL in range(self.ContextLengthMin, self.ContextLengthMax, 2):
                 self.ContextLength = CL       # Creating the output class
                 print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
