@@ -657,9 +657,10 @@ class System:
         print( "Net Error correction", 2*self.Output.CorrectedByContext/float( sum( z1 ) + 1 ) - float( sum( z3 ) )/float( sum( z1 ) + 1) )
         fractionOfChanges = float( sum( z3 ) )/float( sum( z1 ) + 1 )
         fractionOfChanges = float("{0:.3f}".format( fractionOfChanges ) )
-        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "Coverage Depth", "Ratio"] 
+        CorrectFractioncorrect = float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) +1 ) ) )
+        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "net Correction", "Coverage Depth", "Ratio"] 
         RowstoWrite =  [ Heading ]  
-        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) +1 ) ) ), self.CoverageDepth, self.IIDMarkovRatio ]]
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, CorrectFractioncorrect, 2*CorrectFractioncorrect - fractionOfChanges, self.CoverageDepth, self.IIDMarkovRatio ]]
          
         try:
             # copying data from the exiting file
@@ -813,6 +814,6 @@ class System:
                 print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
                 self.PrintInformation( Filename=outputfile )
-                enter = input("ENTER SOMETHING")
+#                 enter = input("ENTER SOMETHING")
                 self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #                AnalyzeContextGroupInfo( self.GroupInfo )
