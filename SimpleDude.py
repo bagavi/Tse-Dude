@@ -801,15 +801,15 @@ class System:
         #Get the input
         # Input from Dna
         # FirstInput = ReadInputFromFile( filename )
-        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 10000, [.25]*4, Null = 0 ,)
+        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 100000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
 #         for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
-        for i in numpy.arange( 5, 50, 5 ):
+        for i in numpy.arange( 100, 150, 5 ):
             self.CoverageDepth = int( i )
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
             Channel.setTransitionDictionary( self.FakeTransitionDictionary )
-            for CL in range(self.ContextLengthMin, self.ContextLengthMax, 1):
+            for CL in range(self.ContextLengthMin, self.ContextLengthMax, 2):
                 self.ContextLength = CL       # Creating the output class
                 print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
                 self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
