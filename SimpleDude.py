@@ -804,7 +804,7 @@ class System:
         FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 10000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
 #         for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
-        for i in numpy.arange( 5, 50, 5 ):
+        for i in numpy.arange( 100, 150, 5 ):
             self.CoverageDepth = int( i )
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
