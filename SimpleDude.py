@@ -438,7 +438,7 @@ class DUDEOutputSequence( OutputSequence ):
 #                 continue
             if i%self.passlimit == 0:
                 print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
-            self.Sequence[ i ] = self.__getFakeTrueSymbol( i ) #BAD CODE
+            self.Sequence[ i ] = self.__getTrueFakeSymbol( i ) #BAD CODE
 #            self.Sequence[ i ] = self.__getTrueSymbol( i ) #BAD CODE
         
     
@@ -859,7 +859,7 @@ class System:
             self.PrintInformation(Filename="Edited_ZIIDMarkovResults_"+os.name+".csv")
             WriteArrayinFile([OutputMLE, self.Input.Sequence , ListOfOutputs[0].Sequence  ] , "Edit_test.csv")
             
-    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "TrueResults_reads_simulation__"+os.name+".csv"):
+    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "TrueFakeResults_reads_simulation__"+os.name+".csv"):
         
         #Get the input
         # Input from Dna
