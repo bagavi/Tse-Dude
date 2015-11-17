@@ -867,7 +867,7 @@ class System:
         FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
 #         for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
-        for i in numpy.arange( 100, 200, 15 ):
+        for i in numpy.arange( 20, 200, 15 ):
             self.CoverageDepth = int( i )
             print("########## Coverage Depth", self.CoverageDepth)
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
@@ -881,4 +881,3 @@ class System:
 #                 enter = input("ENTER SOMETHING")
                 self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #                AnalyzeContextGroupInfo( self.GroupInfo )
-                Enter = input("Entyer something!!")
