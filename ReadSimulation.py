@@ -9,13 +9,13 @@ else:
 if len( sys.argv )> 2:
     ContextLengthMin = int( sys.argv[2] )
 else:
-    ContextLengthMin = 5
+    ContextLengthMin = 2
 
 
 if len( sys.argv )> 3:
     ContextLengthMax = int( sys.argv[3] )
 else:
-    ContextLengthMax = 10
+    ContextLengthMax = 7
     
 
 if len( sys.argv )> 4:
