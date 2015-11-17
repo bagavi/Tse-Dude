@@ -1,7 +1,7 @@
 import CommonFunctions, numpy
 
 def AnalyzeIIDMarkovData(markovTransitionProbab = -1, col = -1):
-    Array = CommonFunctions.FiletoArray('FakeResults_reads_simulation__posix.csv', Int=True)
+    Array = CommonFunctions.FiletoArray('TrueFakeResults_reads_simulation__posix.csv', Int=True)
 #    Array = CommonFunctions.FiletoArray('WOW.csv', Int=True)
 #     Array = CommonFunctions.FiletoArray('ZIIDMarkovResults_posix.csv', Int=True)
 #     Array = CommonFunctions.FiletoArray('bc.csv', Int=True)
