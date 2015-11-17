@@ -438,7 +438,8 @@ class DUDEOutputSequence( OutputSequence ):
 #                 continue
             if i%self.passlimit == 0:
                 print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
-            self.Sequence[ i ] = self.__getTrueSymbol( i ) #BAD CODE
+            self.Sequence[ i ] = self.__getFakeTrueSymbol( i ) #BAD CODE
+#            self.Sequence[ i ] = self.__getTrueSymbol( i ) #BAD CODE
         
     
     def __getTrueFakeSymbol(self, positionI):
@@ -852,7 +853,7 @@ class System:
                 Error += [ self.PrintInformation(Filename="ZIIDMarkovResults_"+os.name+".csv") ]
 
             OutputMLE = VariableContext(ListOfOutputs)
-#             print( OutputMLE )
+#           print( OutputMLE )
             #VERY BAD CODE
             self.Output.Sequence = OutputMLE
             self.PrintInformation(Filename="Edited_ZIIDMarkovResults_"+os.name+".csv")
