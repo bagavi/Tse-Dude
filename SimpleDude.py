@@ -55,6 +55,7 @@ class InputSequence( Sequence ):
         self.SequenceLength = SequenceLength
         self.Null = Null
         self.Sequence = [ self.Null ] * self.SequenceLength
+        self.BreakPoints = []
     
     def GenerateSequence(self): pass       
     
@@ -126,20 +127,25 @@ class ReadFromReads( InputSequence ):
         self.filename = filename
         self.Sequence = []
         self.NoOfReads = NoOfReads
-        self.GenerateSequence()
         self.Alphabet = [ 'A', 'C', 'T', 'G']
-        
+        self.BreakPoints = []
+    
+        self.GenerateSequence()
+
     def GenerateSequence(self):
         handle = open(self.filename)
         i = 0
+        CurrentBreakPoint = 0
         for seq_record in SeqIO.parse( handle, "fastq") :
             if 'N' in list( seq_record.seq ): # Ignoring the reads which have 'N'.
                 continue
             if( i  == self.NoOfReads ):
                 break
             i += 1
+            CurrentBreakPoint += len(seq_record.seq)
+            self.BreakPoints.append(CurrentBreakPoint)
             self.Sequence += list(seq_record.seq)
-        
+    
 class ReadInputFromFile( InputSequence ):
     
     filename = ""
@@ -317,6 +323,7 @@ class ReadsInput( InputSequence ):
         self.Sequence = []
         self.GenerateReads()
         a = 10
+        print ("Inout length size ", len( self.InputSequence.Sequence )*CoverageDepth )
     
     def GenerateReads(self):
         Sequence = []
@@ -337,6 +344,9 @@ class DUDEOutputSequence( OutputSequence ):
     # This is a hash table which stores number of times each context has been repeated
     HashDictionary = dict()
     
+    #Stores where the sequence came  from
+    HashDictionaryOrig = dict()
+    
     #Stores the number of times the given algo has made a right correction
     CorrectedByContext = 0
     
@@ -353,7 +363,6 @@ class DUDEOutputSequence( OutputSequence ):
     
     def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3, shouldIprint = False):
         OutputSequence.__init__( self, Channel.getOutputSequence() )
-        self.Alphabet = Channel.getOutputAlphabet()
         self.InputSequence = InputSequence
         self.ContextLength = ContextLength
         self.shouldIprint = shouldIprint
@@ -362,6 +371,8 @@ class DUDEOutputSequence( OutputSequence ):
         TransitionDictionary = Channel.getTransitionDict()
         self.TransitionDictionaryKeyMap = dict( zip( TransitionDictionary.keys(), range(0 , len(TransitionDictionary.keys()))))
         self.TransitionMatrix = MatrixFromDict( TransitionDictionary )
+        self.Alphabet = self.TransitionDictionaryKeyMap.keys()
+
         try:
             self.InvTransitionMatrix = InverseMatrix( self.TransitionMatrix )
         except:
@@ -392,21 +403,42 @@ class DUDEOutputSequence( OutputSequence ):
     def __getDictProbabilites(self, key ):
         return( self.HashDictionary.get( tuple(key), 0) ) 
     
+    def _skipboundaryPoints(self, i):
+        RightPos = numpy.searchsorted( self.InputSequence.BreakPoints, i)
+        RightBreakPoint = self.InputSequence.BreakPoints[ RightPos ]
+        LeftBreakPoint = self.InputSequence.BreakPoints[ RightPos - 1]
+        if( abs( i - RightBreakPoint ) < self.ContextLength or abs( i - LeftBreakPoint ) < self.ContextLength + 1):
+            return (True)
+        else:
+            return(False)
+   
     # Calculates m( z^n, z_{i-1}^{i-k}, z_{i+1}^{i+k} ] [z_i ]
     def __FirstPass(self):
         print( "In First pass")
+        #self.InputSequence.BreakPoints = numpy.array( self.InputSequence.BreakPoints )
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
+            
+            #Not touching the boundary points
+#             if( self._skipboundaryPoints(i)):
+#                 continue
             if i%(self.passlimit*10) == 0:
                 print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
             TWOkSequence = tuple( self.ReceivedSequence[ i - self.ContextLength : i + self.ContextLength + 1 ] )
+            OrigTWOkSequence = tuple( self.ReceivedSequence[ i - self.ContextLength : i + self.ContextLength + 1 ] )
             self.HashDictionary[ TWOkSequence ] = self.HashDictionary.get( TWOkSequence, 0) + 1
+            self.HashDictionaryOrig[ TWOkSequence ] = self.HashDictionaryOrig.get( TWOkSequence, []) + [ ''.join(OrigTWOkSequence) ]
     
     def __SecondPass(self):
         print( "In Second pass")
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
+            
+            #Not touching the boundary points
+#             if( self._skipboundaryPoints(i)):
+#                 self.Sequence[i] = self.ReceivedSequence[i]
+#                 continue
             if i%self.passlimit == 0:
                 print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
-            self.Sequence[ i ] = self.__getTrueFakeSymbol( i ) #BAD CODE
+            self.Sequence[ i ] = self.__getTrueSymbol( i ) #BAD CODE
         
     
     def __getTrueFakeSymbol(self, positionI):
@@ -490,6 +522,7 @@ class DUDEOutputSequence( OutputSequence ):
                 self.SpoiltByContext += 1
             else:
                 self.SpolitByWrongContext += 1
+                
         elif( z_i != self.InputSequence.Sequence [ positionI ] and minPenalty[ "letter" ] == self.InputSequence.Sequence[ positionI ] ):
             self.CorrectedByContext += 1
             
@@ -497,6 +530,35 @@ class DUDEOutputSequence( OutputSequence ):
                 self.InputSequence.Sequence[ positionI - self.ContextLength  : positionI ] == z_1to_K and #Enforcing same context
                 self.InputSequence.Sequence[ positionI + 1 : positionI + self.ContextLength + 1 ] == z1toK ):
             self.Nochangesmade += 1
+            if False:
+                ErrorContext = tuple( z_1to_K + [minPenalty [ "letter"]] + z1toK )
+                TrueContext  = tuple( z_1to_K + [ self.InputSequence.Sequence [ positionI ] ] + z1toK )
+                ReceivedContext  = tuple(z_1to_K + [self.ReceivedSequence [ positionI ]] + z1toK)
+                print ( "Error Context   ", minPenalty [ "letter"], ErrorContext, self.HashDictionary.get( ErrorContext,0), self.HashDictionaryOrig.get(ErrorContext, []) )
+                print ( "True Context    ", self.InputSequence.Sequence [ positionI ], TrueContext,  self.HashDictionary.get( TrueContext, 0), self.HashDictionaryOrig.get(TrueContext,  []) )
+                print ( "Received Context", self.ReceivedSequence [ positionI ], ReceivedContext, self.HashDictionary.get( ReceivedContext,0 ) , self.HashDictionaryOrig.get( ReceivedContext, 0) )
+                
+                for letter in self.Alphabet:
+                    if z_i in self.Alphabet:
+                        lambda_zi = self.TransitionMatrix[:, self.TransitionDictionaryKeyMap[ z_i ] ]
+                    else:
+                        lambda_zi = numpy.array( [ 1, 1, 1, 1])
+                    LossVector = MultiplyVectorsComponenetWise(
+                                        self.LossFunctionMatrix[:, self.LossFunctionKeyMap[ letter ] ],
+                                        lambda_zi
+                                    )
+                    # mT_Pi_inv is P(Xt/ z^{n/t}
+                    Penalty = LossVector.dot(mT_Pi_inv)
+                    print ("Loss Vector for", letter, "is", LossVector)
+                    print ("Penalty for", letter, "is", Penalty)
+        #             print( "Letter and its loss function ", letter, LossVector, Penalty)
+                    if( minPenalty[ "value" ]  > Penalty):
+                        minPenalty[ "value" ]  = Penalty
+                        minPenalty[ "letter" ] = letter
+                
+                print( "orig", M, "true symbol", self.InputSequence.Sequence[positionI], "Received Symbol", self.ReceivedSequence[positionI])
+                print ("Adjusted", mT_Pi_inv)
+                delete = 0
         if( self.shouldIprint(z_i, self.Alphabet) ):
             self.__debuggingSection(z_i, z_1to_K, z1toK, positionI, minPenalty, M)
         #debugging tool END
@@ -590,8 +652,8 @@ class DUDEOutputSequence( OutputSequence ):
 
 class System:
     CoverageDepth = 1
-    wrongSymbolLoss = 10
-    rightSymbolLoss = 0.01
+    wrongSymbolLoss = 1
+    rightSymbolLoss = 0
     LossFunction = OrderedDict ( 
                    { 'A' : OrderedDict( {'A':rightSymbolLoss, 'G':wrongSymbolLoss, 'T':wrongSymbolLoss, 'C':wrongSymbolLoss} ),
                      'G' : OrderedDict( {'A':wrongSymbolLoss, 'G':rightSymbolLoss, 'T':wrongSymbolLoss, 'C':wrongSymbolLoss} ),
@@ -796,19 +858,20 @@ class System:
             self.PrintInformation(Filename="Edited_ZIIDMarkovResults_"+os.name+".csv")
             WriteArrayinFile([OutputMLE, self.Input.Sequence , ListOfOutputs[0].Sequence  ] , "Edit_test.csv")
             
-    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "FakeResults_reads_simulation__"+os.name+".csv"):
+    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "TrueResults_reads_simulation__"+os.name+".csv"):
         
         #Get the input
         # Input from Dna
         # FirstInput = ReadInputFromFile( filename )
-        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 10000, [.25]*4, Null = 0 ,)
+        FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
 #         for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
-        for i in numpy.arange( 100, 150, 5 ):
+        for i in numpy.arange( 100, 200, 15 ):
             self.CoverageDepth = int( i )
+            print("########## Coverage Depth", self.CoverageDepth)
             self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
             Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
-            Channel.setTransitionDictionary( self.FakeTransitionDictionary )
+            Channel.setTransitionDictionary( self.TransitionDictionary )
             for CL in range(self.ContextLengthMin, self.ContextLengthMax, 1):
                 self.ContextLength = CL       # Creating the output class
                 print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
@@ -817,3 +880,4 @@ class System:
 #                 enter = input("ENTER SOMETHING")
                 self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
 #                AnalyzeContextGroupInfo( self.GroupInfo )
+                Enter = input("Entyer something!!")

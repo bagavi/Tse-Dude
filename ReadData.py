@@ -10,17 +10,17 @@ else:
 if len( sys.argv )> 2:
     ContextLengthMin = int( sys.argv[2] )
 else:
-    ContextLengthMin = 2
+    ContextLengthMin = 3
 
 if len( sys.argv )> 3:
     ContextLengthMax = int( sys.argv[3] )
 else:
-    ContextLengthMax = 10
+    ContextLengthMax = 7
 
 if len( sys.argv )> 4:
     NoOfReads = int( sys.argv[4] )
 else:
-    NoOfReads = 50
+    NoOfReads = 500
 
 shouldIprint =  lambda x, y: not( x in y )
 shouldIprint =  lambda x, y: False

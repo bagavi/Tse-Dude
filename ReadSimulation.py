@@ -4,12 +4,12 @@ StartTime = time.time()
 if len( sys.argv )> 1 :
     flipProbab = float( sys.argv[1] )
 else:
-    flipProbab = 0.02
+    flipProbab = 0.03
 
 if len( sys.argv )> 2:
     ContextLengthMin = int( sys.argv[2] )
 else:
-    ContextLengthMin = 3
+    ContextLengthMin = 5
 
 
 if len( sys.argv )> 3:
@@ -21,15 +21,14 @@ else:
 if len( sys.argv )> 4:
     ReadLength = int( sys.argv[4] )
 else:
-    ReadLength = 200
+    ReadLength = 100
     
 
     
 filename = '../original/genome_data.fasta'
-ReadLength = 100
 
 
-shouldIprint =  lambda x, y: True
+shouldIprint =  lambda x, y: False
 
 Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint=shouldIprint)
 Obj.ReadSimulation( filename, ReadLength = ReadLength )
