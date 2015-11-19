@@ -870,8 +870,7 @@ class System:
         # FirstInput = ReadInputFromFile( filename )
         FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
-#         for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
-        for self.alpha in range( 0, 1 , .25):       
+        for self.alpha in range( 0, 10, 1):       
             for i in numpy.arange( 20, 200, 15 ):
                 self.CoverageDepth = int( i )
                 print("########## Coverage Depth", self.CoverageDepth)
@@ -883,5 +882,4 @@ class System:
                     print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
                     self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, alpha = self.alpha, shouldIprint = self.shouldIprint)
                     self.PrintInformation( Filename=outputfile )
-    #                 enter = input("ENTER SOMETHING")
                     self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
