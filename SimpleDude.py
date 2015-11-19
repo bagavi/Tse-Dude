@@ -361,12 +361,12 @@ class DUDEOutputSequence( OutputSequence ):
     passlimit = 25000
     shouldIprint = False
     
-    def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3, shouldIprint = False):
+    def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3, alpha = .1, shouldIprint = False):
         OutputSequence.__init__( self, Channel.getOutputSequence() )
         self.InputSequence = InputSequence
         self.ContextLength = ContextLength
         self.shouldIprint = shouldIprint
-    
+        self.alpha = alpha
         #Transition matrix
         TransitionDictionary = Channel.getTransitionDict()
         self.TransitionDictionaryKeyMap = dict( zip( TransitionDictionary.keys(), range(0 , len(TransitionDictionary.keys()))))
@@ -458,9 +458,12 @@ class DUDEOutputSequence( OutputSequence ):
 #         print("\n\n")
         for letter in self.Alphabet:
 #             prints(z_1to_K , " ",[ letter ], " ", z1toK, " -- > ", self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  ) )
-        
-            if Max < self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK ):
-                Max = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )
+            if letter == z_i:
+                Probability_Letter = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )*(1 + self.alpha)              
+            else:
+                Probability_Letter = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )
+            if Max < Probability_Letter:
+                Max = Probability_Letter
                 Maxletter = letter
         
         if Maxletter == self.InputSequence.Sequence[positionI] and Maxletter != z_i:
@@ -667,6 +670,7 @@ class System:
     ContextLength = 3
     IIDMarkovRatio = -1
     Output = []    
+    self.alpha = -1
     def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, SequenceLength = 10000, flipProbab = .9, shouldIprint = False):
         self.ContextLengthMin = ContextLengthMin
         self.ContextLengthMax = ContextLengthMax
@@ -721,9 +725,9 @@ class System:
         fractionOfChanges = float( sum( z3 ) )/float( sum( z1 ) + 1 )
         fractionOfChanges = float("{0:.3f}".format( fractionOfChanges ) )
         CorrectFractioncorrect = float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) +1 ) ) )
-        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "net Correction", "Coverage Depth", "Ratio"] 
+        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "net Correction", "Coverage Depth", "Ratio", "Alpha"] 
         RowstoWrite =  [ Heading ]  
-        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, CorrectFractioncorrect, 2*CorrectFractioncorrect - fractionOfChanges, self.CoverageDepth, self.IIDMarkovRatio ]]
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, CorrectFractioncorrect, 2*CorrectFractioncorrect - fractionOfChanges, self.CoverageDepth, self.IIDMarkovRatio, self.alpha ]]
          
         try:
             # copying data from the exiting file
@@ -867,17 +871,17 @@ class System:
         FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
 #         for i in list( numpy.arange( 1, 100, 10 ) ) + list( numpy.arange( 100, 500, 50 ) ):
-        for i in numpy.arange( 20, 200, 15 ):
-            self.CoverageDepth = int( i )
-            print("########## Coverage Depth", self.CoverageDepth)
-            self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
-            Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
-            Channel.setTransitionDictionary( self.TransitionDictionary )
-            for CL in range(self.ContextLengthMin, self.ContextLengthMax, 1):
-                self.ContextLength = CL       # Creating the output class
-                print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
-                self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, shouldIprint = self.shouldIprint)
-                self.PrintInformation( Filename=outputfile )
-#                 enter = input("ENTER SOMETHING")
-                self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
-#                AnalyzeContextGroupInfo( self.GroupInfo )
+        for self.alpha in range( 0, 1 , .25):       
+            for i in numpy.arange( 20, 200, 15 ):
+                self.CoverageDepth = int( i )
+                print("########## Coverage Depth", self.CoverageDepth)
+                self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
+                Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
+                Channel.setTransitionDictionary( self.TransitionDictionary )
+                for CL in range(self.ContextLengthMin, self.ContextLengthMax, 1):
+                    self.ContextLength = CL       # Creating the output class
+                    print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
+                    self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, alpha = self.alpha, shouldIprint = self.shouldIprint)
+                    self.PrintInformation( Filename=outputfile )
+    #                 enter = input("ENTER SOMETHING")
+                    self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)
