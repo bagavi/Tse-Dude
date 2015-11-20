@@ -670,7 +670,7 @@ class System:
     ContextLength = 3
     IIDMarkovRatio = -1
     Output = []    
-    def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, SequenceLength = 10000, flipProbab = .9, shouldIprint = False):
+    def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, SequenceLength = 10000, flipProbab = .9, shouldIprint = False, alphamin = 1, alphamax = 10):
         self.ContextLengthMin = ContextLengthMin
         self.ContextLengthMax = ContextLengthMax
         self.ContextLength = ContextLength
@@ -678,7 +678,9 @@ class System:
         self.SequenceLength = SequenceLength
         self.p = flipProbab
         p = self.p
-        selfalpha = -1
+        self.alpha = -1
+        self.alphamin = alphamin
+        self.alphamax = alphamax
         self.NumberOfInstances = 0
         self.TransitionDictionary = OrderedDict( { 
                                  'A' : OrderedDict( {'A':1-p, 'G':p/3, 'T':p/3, 'C':p/3} ),
@@ -870,8 +872,8 @@ class System:
         # FirstInput = ReadInputFromFile( filename )
         FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
-        for self.alpha in range( 0, 10, 1):       
-            for i in numpy.arange( 20, 200, 15 ):
+        for self.alpha in range( self.alphamin, self.alphamax, 1):       
+            for i in numpy.arange( 80, 200, 15 ):
                 self.CoverageDepth = int( i )
                 print("########## Coverage Depth", self.CoverageDepth)
                 self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
