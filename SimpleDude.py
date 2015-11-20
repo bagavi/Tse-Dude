@@ -670,7 +670,6 @@ class System:
     ContextLength = 3
     IIDMarkovRatio = -1
     Output = []    
-    self.alpha = -1
     def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, SequenceLength = 10000, flipProbab = .9, shouldIprint = False):
         self.ContextLengthMin = ContextLengthMin
         self.ContextLengthMax = ContextLengthMax
@@ -679,6 +678,7 @@ class System:
         self.SequenceLength = SequenceLength
         self.p = flipProbab
         p = self.p
+	self.alpha = -1
         self.NumberOfInstances = 0
         self.TransitionDictionary = OrderedDict( { 
                                  'A' : OrderedDict( {'A':1-p, 'G':p/3, 'T':p/3, 'C':p/3} ),
@@ -871,7 +871,7 @@ class System:
         FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
         for self.alpha in range( 0, 10, 1):       
-            for i in numpy.arange( 20, 200, 15 ):
+            for i in numpy.arange( 80, 200, 15 ):
                 self.CoverageDepth = int( i )
                 print("########## Coverage Depth", self.CoverageDepth)
                 self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
