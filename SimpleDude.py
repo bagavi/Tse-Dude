@@ -670,7 +670,6 @@ class System:
     ContextLength = 3
     IIDMarkovRatio = -1
     Output = []    
-    self.alpha = -1
     def __init__(self, ContextLength = -1, ContextLengthMin = 3, ContextLengthMax = 7, SequenceLength = 10000, flipProbab = .9, shouldIprint = False):
         self.ContextLengthMin = ContextLengthMin
         self.ContextLengthMax = ContextLengthMax
@@ -679,6 +678,7 @@ class System:
         self.SequenceLength = SequenceLength
         self.p = flipProbab
         p = self.p
+        selfalpha = -1
         self.NumberOfInstances = 0
         self.TransitionDictionary = OrderedDict( { 
                                  'A' : OrderedDict( {'A':1-p, 'G':p/3, 'T':p/3, 'C':p/3} ),
