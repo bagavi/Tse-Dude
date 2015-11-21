@@ -18,18 +18,18 @@ else:
     ContextLengthMax = 10
     
 if len( sys.argv )> 4:
-    alphamin = int( sys.argv[3] )
+    alphamin = int( sys.argv[4] )
 else:
     alphamin = 1
     
 if len( sys.argv )> 5:
-    alphamax = int( sys.argv[3] )
+    alphamax = int( sys.argv[5] )
 else:
     alphamax = 10
     
 
 if len( sys.argv )> 6:
-    ReadLength = int( sys.argv[4] )
+    ReadLength = int( sys.argv[6] )
 else:
     ReadLength = 100
     

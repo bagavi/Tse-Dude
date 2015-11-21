@@ -873,7 +873,7 @@ class System:
         FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
         #Get Reads and combine the reads
         for self.alpha in range( self.alphamin, self.alphamax, 1):       
-            for i in numpy.arange( 80, 200, 15 ):
+            for i in numpy.arange( 20, 200, 15 ):
                 self.CoverageDepth = int( i )
                 print("########## Coverage Depth", self.CoverageDepth)
                 self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
