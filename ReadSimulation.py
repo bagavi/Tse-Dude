@@ -29,7 +29,13 @@ else:
     
 
 if len( sys.argv )> 6:
-    ReadLength = int( sys.argv[6] )
+    Repeat = int( sys.argv[6] )
+else:
+    Repeat = 50
+
+
+if len( sys.argv )> 7:
+    ReadLength = int( sys.argv[7] )
 else:
     ReadLength = 100
     
@@ -40,6 +46,7 @@ filename = '../original/genome_data.fasta'
 
 shouldIprint =  lambda x, y: False
 
-Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, shouldIprint=shouldIprint, alphamin = alphamin, alphamax = alphamax)
+Obj = SimpleDude.System( ContextLengthMin = ContextLengthMin, ContextLengthMax = ContextLengthMax, flipProbab=flipProbab, 
+                         shouldIprint=shouldIprint, alphamin = alphamin, alphamax = alphamax, Repeat = Repeat)
 Obj.ReadSimulation( filename, ReadLength = ReadLength )
 print( "total execution time", time.time() - StartTime)
