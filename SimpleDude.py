@@ -866,7 +866,7 @@ class System:
             self.PrintInformation(Filename="Edited_ZIIDMarkovResults_"+os.name+".csv")
             WriteArrayinFile([OutputMLE, self.Input.Sequence , ListOfOutputs[0].Sequence  ] , "Edit_test.csv")
             
-    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "TrueFakeResults_reads_simulation__"+os.name+".csv"):
+    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "ZTrueFakeResults_reads_simulation__"+os.name+".csv"):
         
         for repeat in range(self.Repeat):
             #Get the input
