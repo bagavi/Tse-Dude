@@ -878,15 +878,16 @@ class System:
             self.PrintInformation(Filename="Edited_ZIIDMarkovResults_"+os.name+".csv")
             WriteArrayinFile([OutputMLE, self.Input.Sequence , ListOfOutputs[0].Sequence  ] , "Edit_test.csv")
             
-    def ReadSimulation(self, filename, ReadLength = 100,   outputfile = "YTrueFakeResults_reads_simulation__"+os.name+".csv"):
+    def ReadSimulation(self, filename, ReadLength = 100   ):
         
+        outputfile = "Final_"+''.join(random.choice('abcde') for _ in range(10))+"_Results_reads_simulation__"+os.name+".csv"
         for repeat in range(self.Repeat):
             #Get the input
             # Input from Dna
             # FirstInput = ReadInputFromFile( filename )
             FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
             #Get Reads and combine the reads
-            for self.alpha in range( self.alphamin, self.alphamax, 1):       
+            for self.alpha in range( self.alphamin, self.alphamax, 4):       
                 for self.CoverageDepth in numpy.arange( 20, 96, 25 ):
                     print("########## Coverage Depth", self.CoverageDepth)
                     self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
