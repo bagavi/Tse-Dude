@@ -443,16 +443,16 @@ class DUDEOutputSequence( OutputSequence ):
                 print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
             FakeSymbol = self.__getTrueFakeSymbol( i )
             DudeSymbol = self.__getTrueSymbol( i )
-
-            if FakeSymbol != DudeSymbol:
-                TrueSymbol = self.InputSequence.Sequence[i]
-                ReceivedSymbol = self.ReceivedSequence[i]
-                print( "\n\nTrueSymbol", TrueSymbol)
-                print( "ReceivedSymbol", ReceivedSymbol)
-                print( "FakeSymbol", FakeSymbol)
-                print( "DudeSymbol", DudeSymbol)
-                DudeSymbol = self.__getTrueSymbol( i )
-                FakeSymbol = self.__getTrueFakeSymbol( i )
+# 
+#             if FakeSymbol != DudeSymbol:
+#                 TrueSymbol = self.InputSequence.Sequence[i]
+#                 ReceivedSymbol = self.ReceivedSequence[i]
+#                 print( "\n\nTrueSymbol", TrueSymbol)
+#                 print( "ReceivedSymbol", ReceivedSymbol)
+#                 print( "FakeSymbol", FakeSymbol)
+#                 print( "DudeSymbol", DudeSymbol)
+#                 DudeSymbol = self.__getTrueSymbol( i )
+#                 FakeSymbol = self.__getTrueFakeSymbol( i )
 #             elif FakeSymbol == self.InputSequence.Sequence[i]:
 #                 self.DudeWin += -1
 #             elif DudeSymbol == self.InputSequence.Sequence[i]:
@@ -477,7 +477,7 @@ class DUDEOutputSequence( OutputSequence ):
         for letter in self.Alphabet:
 #             prints(z_1to_K , " ",[ letter ], " ", z1toK, " -- > ", self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  ) )
             if letter == z_i:
-                Probability_Letter = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )*(1 + alpha)              
+                Probability_Letter = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )*(1 + self.alpha)              
             else:
                 Probability_Letter = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )
             if Max < Probability_Letter:
@@ -722,7 +722,7 @@ class System:
         print( "Flip probability of DMC ", self.p)
 #         print( "Dude Loss dictionary", self.LossFunction)
         print( "DUDE context length" , self.ContextLength)
-	print( "Alpha", self.alpha )
+        print( "Alpha" , self.alpha)
 #         print( "Partial Input Sequence", self.Input.getSequence()[ : 500])
         
         # Done with calling functions
@@ -889,7 +889,7 @@ class System:
             FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
             #Get Reads and combine the reads
             for self.alpha in range( self.alphamin, self.alphamax, 4):       
-                for self.CoverageDepth in numpy.arange( 20, 96, 25 ):
+                for self.CoverageDepth in numpy.arange( 30, 106, 25 ):
                     print("########## Coverage Depth", self.CoverageDepth)
                     self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
                     Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
