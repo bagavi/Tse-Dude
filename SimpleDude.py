@@ -889,7 +889,7 @@ class System:
             FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
             #Get Reads and combine the reads
             for self.alpha in range( self.alphamin, self.alphamax, 4):       
-                for self.CoverageDepth in numpy.arange( 30, 106, 25 ):
+                for self.CoverageDepth in numpy.arange( 10, 30, 8):
                     print("########## Coverage Depth", self.CoverageDepth)
                     self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
                     Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )

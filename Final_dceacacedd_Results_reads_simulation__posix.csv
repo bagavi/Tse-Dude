@@ -1,0 +1,8 @@
+InputSequence Length,Channel Flip Prob,Context Length,Markov Transition Probabilities,No. of Errors,No of changes by DUDE,Number of right changes,fraction of changes,net Correction,Coverage Depth,Ratio,Alpha,DudeWin
+0,0.05,6,-1.0,897,483,902,0.538,0.47,18,-1,0,0
+0,0.05,5,-1.0,897,592,1042,0.659,0.51,18,-1,0,0
+0,0.05,9,-1.0,506,154,284,0.304,0.258,10,-1,0,0
+0,0.05,8,-1.0,506,186,342,0.367,0.312,10,-1,0,0
+0,0.05,7,-1.0,506,223,414,0.44,0.379,10,-1,0,0
+0,0.05,6,-1.0,506,257,464,0.507,0.412,10,-1,0,0
+0,0.05,5,-1.0,506,293,510,0.578,0.432,10,-1,0,0
