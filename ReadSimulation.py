@@ -25,7 +25,7 @@ else:
 if len( sys.argv )> 5:
     alphamax = int( sys.argv[5] )
 else:
-    alphamax = 10
+    alphamax = 30
     
 
 if len( sys.argv )> 6:
