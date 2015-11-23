@@ -443,17 +443,24 @@ class DUDEOutputSequence( OutputSequence ):
                 print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
             FakeSymbol = self.__getTrueFakeSymbol( i )
             DudeSymbol = self.__getTrueSymbol( i )
-            
-            if FakeSymbol == DudeSymbol:
-                continue
-            elif FakeSymbol == self.InputSequence.Sequence[i]:
-                self.DudeWin += -1
-            elif DudeSymbol == self.InputSequence.Sequence[i]:
-                self.DudeWin += +1
+
+            if FakeSymbol != DudeSymbol:
+                TrueSymbol = self.InputSequence.Sequence[i]
+                ReceivedSymbol = self.ReceivedSequence[i]
+                print( "\n\nTrueSymbol", TrueSymbol)
+                print( "ReceivedSymbol", ReceivedSymbol)
+                print( "FakeSymbol", FakeSymbol)
+                print( "DudeSymbol", DudeSymbol)
+                DudeSymbol = self.__getTrueSymbol( i )
+                FakeSymbol = self.__getTrueFakeSymbol( i )
+#             elif FakeSymbol == self.InputSequence.Sequence[i]:
+#                 self.DudeWin += -1
+#             elif DudeSymbol == self.InputSequence.Sequence[i]:
+#                 self.DudeWin += +1
             self.Sequence[ i ] = self.__getTrueFakeSymbol( i ) #BAD CODE
         
     
-    def __getTrueFakeSymbol(self, positionI):
+    def __getTrueFakeSymbol(self, positionI, alpha = 28.2):
         z_i = self.ReceivedSequence[ positionI ]
         if z_i not in self.Alphabet:
             pass
@@ -470,7 +477,7 @@ class DUDEOutputSequence( OutputSequence ):
         for letter in self.Alphabet:
 #             prints(z_1to_K , " ",[ letter ], " ", z1toK, " -- > ", self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  ) )
             if letter == z_i:
-                Probability_Letter = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )*(1 + self.alpha)              
+                Probability_Letter = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )*(1 + alpha)              
             else:
                 Probability_Letter = self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK )
             if Max < Probability_Letter:
@@ -495,8 +502,7 @@ class DUDEOutputSequence( OutputSequence ):
 
     def __getTrueSymbol(self, positionI):
         z_i = self.ReceivedSequence[ positionI ]
-        if z_i not in self.Alphabet:
-            pass
+
         #If the alphabet is not among ACGT, we dont "correct" it
         # Initializing pre and post context sequence variables
         z_1to_K = self.ReceivedSequence[ positionI - self.ContextLength  : positionI  ]
@@ -507,10 +513,10 @@ class DUDEOutputSequence( OutputSequence ):
 #         print( "Context = ", z_1to_K ," * ", z1toK, "Current symbol", z_i)
         for letter in self.Alphabet:
             # Fraction of context with z_1to_K + letter + z1toK
-            M[ letter ]=  self.__getDictProbabilites(  z_1to_K + [ letter ] + z1toK  )
+            context = z_1to_K + [ letter ] + z1toK
+            M[ letter ]=  self.__getDictProbabilites(  context  )
 #             print( "Probab for = ",z_1to_K,  letter, z1toK, M[ letter ])
-        if len(M) > 4:
-            pass
+        
         mT_Pi_inv = numpy.array( list( M.values() ) ).dot( self.InvTransitionMatrix )
         minPenalty = { "letter": None, "value": numpy.Infinity }
         for letter in self.Alphabet:
