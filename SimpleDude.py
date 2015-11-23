@@ -722,6 +722,7 @@ class System:
         print( "Flip probability of DMC ", self.p)
 #         print( "Dude Loss dictionary", self.LossFunction)
         print( "DUDE context length" , self.ContextLength)
+	print( "Alpha", self.alpha )
 #         print( "Partial Input Sequence", self.Input.getSequence()[ : 500])
         
         # Done with calling functions
