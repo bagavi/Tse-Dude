@@ -10,6 +10,7 @@ from abc import ABCMeta, abstractmethod
 from CommonFunctions import *
 import math, collections
 from Bio import SeqIO
+import datetime
 
 
 """
@@ -360,6 +361,7 @@ class DUDEOutputSequence( OutputSequence ):
     #print limit (ignore this)
     passlimit = 25000
     shouldIprint = False
+    DudeWin = 0
     
     def __init__(self, Channel, LossFunction, InputSequence, ContextLength = 3, alpha = .1, shouldIprint = False):
         OutputSequence.__init__( self, Channel.getOutputSequence() )
@@ -429,6 +431,7 @@ class DUDEOutputSequence( OutputSequence ):
             self.HashDictionaryOrig[ TWOkSequence ] = self.HashDictionaryOrig.get( TWOkSequence, []) + [ ''.join(OrigTWOkSequence) ]
     
     def __SecondPass(self):
+        self.DudeWin = 0
         print( "In Second pass")
         for i in range( self.ContextLength, len( self.ReceivedSequence ) - self.ContextLength ):
             
@@ -438,8 +441,16 @@ class DUDEOutputSequence( OutputSequence ):
 #                 continue
             if i%self.passlimit == 0:
                 print(i, " ", self.SequenceLength,"Context length", self.ContextLength)
+            FakeSymbol = self.__getTrueFakeSymbol( i )
+            DudeSymbol = self.__getTrueSymbol( i )
+            
+            if FakeSymbol == DudeSymbol:
+                continue
+            elif FakeSymbol == self.InputSequence.Sequence[i]:
+                self.DudeWin += -1
+            elif DudeSymbol == self.InputSequence.Sequence[i]:
+                self.DudeWin += +1
             self.Sequence[ i ] = self.__getTrueFakeSymbol( i ) #BAD CODE
-#            self.Sequence[ i ] = self.__getTrueSymbol( i ) #BAD CODE
         
     
     def __getTrueFakeSymbol(self, positionI):
@@ -701,7 +712,7 @@ class System:
                 
     def PrintInformation(self, Filename = 'Results_'+os.name+'.csv'):
         self.r1 = -1 #BAD CODE
-        print( "Instance Number", self.NumberOfInstances)
+        print( "Time", datetime.datetime.now())
         print( "Flip probability of DMC ", self.p)
 #         print( "Dude Loss dictionary", self.LossFunction)
         print( "DUDE context length" , self.ContextLength)
@@ -713,24 +724,19 @@ class System:
         Corrected = self.Output.Sequence
     
         z1 = PointWiseListDifference( Input, Received)
-        print( "Changes made by channel", sum(z1))
         z2 = PointWiseListDifference( Input, Corrected)
-        print( "Difference between actual and corrected sequence", sum( z2 ) )
         z3 = PointWiseListDifference( Received, Corrected)
-        print( "Difference between received and corrected sequence",sum( z3 ) )
-        print( "Correct changes Made by the right context", self.Output.CorrectedByContext)
-        print( "Number of spoils by the wrong context", self.Output.SpolitByWrongContext)
-        print( "Number of spoils by the right context", self.Output.SpoiltByContext)
-        print( "Number of unchanged", self.Output.Nochangesmade)
+        print( "Errors made by channel", sum(z1))
+        print( "Changes by Algorithm",sum( z3 ) )
+        print( "Final Errors", sum( z2 ) )
         print( "Fraction of changed symbols (w.r.t no of errors)", float( sum( z3 ) )/float( sum( z1 ) + 1))
-        print( "Fraction of correctly changed symbols (w.r.t no of errors)", self.Output.CorrectedByContext/float( sum( z1 ) + 1 ))
         print( "Net Error correction", 2*self.Output.CorrectedByContext/float( sum( z1 ) + 1 ) - float( sum( z3 ) )/float( sum( z1 ) + 1) )
         fractionOfChanges = float( sum( z3 ) )/float( sum( z1 ) + 1 )
         fractionOfChanges = float("{0:.3f}".format( fractionOfChanges ) )
         CorrectFractioncorrect = float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) +1 ) ) )
-        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "net Correction", "Coverage Depth", "Ratio", "Alpha"] 
+        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "net Correction", "Coverage Depth", "Ratio", "Alpha", "DudeWin"] 
         RowstoWrite =  [ Heading ]  
-        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, CorrectFractioncorrect, 2*CorrectFractioncorrect - fractionOfChanges, self.CoverageDepth, self.IIDMarkovRatio, self.alpha ]]
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, CorrectFractioncorrect, 2*CorrectFractioncorrect - fractionOfChanges, self.CoverageDepth, self.IIDMarkovRatio, self.alpha, self.Output.DudeWin ]]                  
          
         try:
             # copying data from the exiting file
@@ -875,8 +881,7 @@ class System:
             FirstInput = IIDInputSequence([ 'A', 'G', 'C', 'T' ], 1000, [.25]*4, Null = 0 ,)
             #Get Reads and combine the reads
             for self.alpha in range( self.alphamin, self.alphamax, 1):       
-                for i in numpy.arange( 20, 90, 15 ):
-                    self.CoverageDepth = int( i )
+                for self.CoverageDepth in numpy.arange( 20, 96, 25 ):
                     print("########## Coverage Depth", self.CoverageDepth)
                     self.Input = ReadsInput( FirstInput, ReadLength, CoverageDepth = self.CoverageDepth)
                     Channel = DiscreteMemoryChannel( self.Input, self.TransitionDictionary )
@@ -886,4 +891,3 @@ class System:
                         print( "Context Length", CL, "Length", len( self.Input.Sequence ), "Covereage Depth", self.CoverageDepth)
                         self.Output = DUDEOutputSequence( Channel, self.LossFunction, self.Input, ContextLength = self.ContextLength, alpha = self.alpha, shouldIprint = self.shouldIprint)
                         self.PrintInformation( Filename=outputfile )
-                        self.GroupInfo = groupContexts( self.Output.HashDictionary, self.Output.Alphabet)

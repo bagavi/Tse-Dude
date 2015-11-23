@@ -9,7 +9,7 @@ else:
 if len( sys.argv )> 2:
     ContextLengthMin = int( sys.argv[2] )
 else:
-    ContextLengthMin = 7
+    ContextLengthMin = 5
 
 
 if len( sys.argv )> 3:
@@ -31,7 +31,7 @@ else:
 if len( sys.argv )> 6:
     Repeat = int( sys.argv[6] )
 else:
-    Repeat = 50
+    Repeat = 20
 
 
 if len( sys.argv )> 7:

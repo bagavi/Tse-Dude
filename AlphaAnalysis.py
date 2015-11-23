@@ -1,8 +1,8 @@
 import CommonFunctions, numpy
 from operator import itemgetter
 
-def AlphaAnalysis( RContextLength = 8 ):
-    Array = CommonFunctions.FiletoArray('YTrueFakeResults_reads_simulation__posix.csv', Int=True)
+def AlphaAnalysis( RContextLength = 6 ):
+    Array = CommonFunctions.FiletoArray('YTrueFakeResults_reads_simulation__posix2.csv', Int=True)
     Dictionary = dict()
     ReadArray = []
     for row in Array:
@@ -13,7 +13,7 @@ def AlphaAnalysis( RContextLength = 8 ):
         NetCorrections = float(row[-4])
         Changes = float( row[-6] )
         WrongCorrections = float( row[-6]) - float(row[-5])
-        data = [NetCorrections, Changes, WrongCorrections]
+        data = [NetCorrections ]#, Changes, WrongCorrections]
         Dictionary[ key ] = Dictionary.get( key, []) + [ data ]
     
     DataArray = []
@@ -29,4 +29,14 @@ def AlphaAnalysis( RContextLength = 8 ):
         print(i)
     print( "hi" )
     
+    Alpha0Array = [  row for row in DataArray if(row[0] == 0) ]
+    Alpha0Array.sort(key=itemgetter(1), reverse=True)
+    Alpha0Array.sort(key=itemgetter(0), reverse=True)
+    for i in Alpha0Array:
+        print(i)
+    
+    print( "\n\n")
+    DataArray.sort( key = itemgetter(3), reverse = True)
+    for i in DataArray[:100]:
+        print(i)
 AlphaAnalysis( )    
