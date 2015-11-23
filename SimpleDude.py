@@ -757,7 +757,7 @@ class System:
             print( "Creating Result.csv")
         #f.close()
         #Writing all the data
-        with open( Filename, 'w', newline = '') as f:                                    
+        with open( Filename, 'w') as f:                                    
             writer = csv.writer(f)                                                       
             writer.writerows(RowstoWrite)
         f.close()
