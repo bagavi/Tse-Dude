@@ -740,10 +740,10 @@ class System:
         print( "Net Error correction", 2*self.Output.CorrectedByContext/float( sum( z1 ) + 1 ) - float( sum( z3 ) )/float( sum( z1 ) + 1) )
         fractionOfChanges = float( sum( z3 ) )/float( sum( z1 ) + 1 )
         fractionOfChanges = float("{0:.3f}".format( fractionOfChanges ) )
-        CorrectFractioncorrect = float("{0:.3f}".format( self.Output.CorrectedByContext/float( sum( z1 ) +1 ) ) )
-        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "fraction of right changes", "net Correction", "Coverage Depth", "Ratio", "Alpha", "DudeWin"] 
+        CorrectFractioncorrect = float("{0:.3f}".format( 1 - float( sum(z2) ) /float( sum( z1 ) +1 ) ) )
+        Heading = [ "InputSequence Length", "Channel Flip Prob", "Context Length", "Markov Transition Probabilities","No. of Errors", "No of changes by DUDE", "Number of right changes", "fraction of changes", "net Correction", "Coverage Depth", "Ratio", "Alpha", "DudeWin"] 
         RowstoWrite =  [ Heading ]  
-        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, CorrectFractioncorrect, 2*CorrectFractioncorrect - fractionOfChanges, self.CoverageDepth, self.IIDMarkovRatio, self.alpha, self.Output.DudeWin ]]                  
+        RowstoWrite += [[ self.Input.SequenceLength, self.p, self.ContextLength, float("{0:.2f}".format(self.r1)) , sum(z1), sum(z3), self.Output.CorrectedByContext,  fractionOfChanges, CorrectFractioncorrect,  self.CoverageDepth, self.IIDMarkovRatio, self.alpha, self.Output.DudeWin ]]                  
          
         try:
             # copying data from the exiting file
@@ -757,7 +757,7 @@ class System:
             print( "Creating Result.csv")
         #f.close()
         #Writing all the data
-        with open( Filename, 'w') as f:                                    
+        with open( Filename, 'w', newline = '') as f:                                    
             writer = csv.writer(f)                                                       
             writer.writerows(RowstoWrite)
         f.close()
